@@ -1,0 +1,29 @@
+name: Managed CI On Manual Dev Build
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  pre-check:
+    uses: Omkarprakashchavan/code_repo/.github/workflows/mci-pre-check.yaml@v1.3.0
+    secrets: inherit
+  # pre-stage:
+  #   uses: ./.github/workflows/mci-pre-stage.yaml
+  #   secrets: inherit
+  #   needs: pre-check
+  # pre-test:
+  #   uses: ./.github/workflows/mci-pre-test.yaml
+  #   secrets: inherit
+  #   needs: pre-stage
+  unit-test: 
+    uses: Omkarprakashchavan/code_repo/.github/workflows/mci-unit-test.yaml@v1.3.0
+    secrets: inherit
+    needs: pre-test
+  build:
+    uses: Omkarprakashchavan/code_repo/.github/workflows/mci-build.yaml@v1.3.0
+    secrets: inherit
+    needs: unit-test
+  post-build:
+    uses: Omkarprakashchavan/code_repo/.github/workflows/mci-post-build.yaml@v1.3.0
+    secrets: inherit
+    needs: build
