@@ -25,3 +25,5 @@ jobs:
           python --version
           python test-set-context.py personal.yaml
         shell: bash
+        env:
+          APP_TOKEN: ${{ secrets.APP_TOKEN }}
