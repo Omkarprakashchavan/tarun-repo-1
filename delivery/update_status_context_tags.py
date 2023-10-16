@@ -11,7 +11,8 @@ organisation = 'glcp'
 repositories = []
 repository_ids = []
 tags_1x_status_context = ['tag1', 'tag1.1'] # Update the status check context for tag v1.1.X
-tags_2x_status_context = ['tag2', 'tag2.1', 'tag2.2'] # Update the status check context for tag v1.2.X
+tags_2x_status_context = ['tag2', 'tag2.1', 'tag2.2'] # Update the status check context for tag v2.1.X
+tags_3x_status_context = ['tag3', 'tag3.1', 'tag3.2'] # Update the status check context for tag v3.1.X
 python_status_context = ['python', 'py'] # Update the status check context for python
 java_status_context = ['java', 'jdk', 'jre'] # Update the status check context for java
 golang_status_context = ['golang', 'go'] # Update the status check context for golang
@@ -167,12 +168,15 @@ def check_if_branch_protected(repository, repository_id, default_branch, refspec
                 if rule["pattern"] == default_branch:
                     protection_rule_id = rule["id"]
                     protected_status_check_context = rule["requiredStatusCheckContexts"]
-                    if refspec.startswith("tags/v1.1"):
+                    if refspec.startswith("tags/v1"):
                         global tags_1x_status_context
                         tag_status_context = tags_1x_status_context
-                    elif refspec.startswith("tags/v1.2"):
+                    elif refspec.startswith("tags/v2"):
                         global tags_2x_status_context
                         tag_status_context = tags_2x_status_context
+                    elif refspec.startswith("tags/v3"):
+                        global tags_3x_status_context
+                        tag_status_context = tags_3x_status_context
                     else:
                         tag_status_context = []
                     
@@ -202,9 +206,12 @@ def create_branchprotection_rule(repository, repository_id, default_branch, refs
     if refspec.startswith("tags/v1.1"):
         global tags_1x_status_context
         tag_status_context = tags_1x_status_context
-    elif refspec.startswith("tags/v1.2"):
+    elif refspec.startswith("tags/v2"):
         global tags_2x_status_context
         tag_status_context = tags_2x_status_context
+    elif refspec.startswith("tags/v3"):
+        global tags_3x_status_context
+        tag_status_context = tags_3x_status_context
     else:
         tag_status_context = []
                     
