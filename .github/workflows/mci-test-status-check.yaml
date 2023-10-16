@@ -1,0 +1,27 @@
+name: Managed CI Workflow Deployer
+on:
+  workflow_dispatch: 
+  push:
+    branches:
+      - main
+    paths:
+      - 'workflow-deployment.yaml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone the MCI repository
+        uses: actions/checkout@v3.3.0
+
+      - name: Install Python modules
+        run: |
+          pip3 install ruamel.yaml
+          pip3 install pyyaml
+          pip3 install requests
+
+      - name: Invoke Python modules to add status checks
+        run: |
+          python --version
+          python test-set-context.py personal.yaml
+        shell: bash
