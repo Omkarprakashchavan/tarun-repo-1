@@ -19,6 +19,7 @@ golang_status_context = ['golang', 'go'] # Update the status check context for g
 python_lib_status_context = ['python_lib', 'lib'] # Update the status check context for python_lib
 shell_status_context = ['shell', 'linux'] # Update the status check context for shell
 secrets = ['OWNER', 'USER']
+lang_variable = 'GH_REPO_LANG'
 
 headers = {
     'Authorization': f'Bearer {github_token}',
@@ -30,7 +31,11 @@ try:
     sys.argv[1]
 except IndexError:
     sys.exit("workflow-deployment.yaml file expected as input argument")
-    
+
+def print_red(skk): print("\033[91m {}\033[00m" .format(skk))
+
+def print_green(skk): print("\033[92m {}\033[00m" .format(skk))
+
 def main():
     """This function process YAML input file and fetches repository names into list"""
     file_path = sys.argv[1]
@@ -49,7 +54,7 @@ def main():
     if bool(repositories):
         create_list_repo_ids(repositories)
     else:
-        print("Unable to fetch repository names from input file")
+        print_red("Unable to fetch repository names from input file")
 
 def create_list_repo_ids(repositories):
     """This functions creates list of repository ids where secret access needs to be updated"""
@@ -63,7 +68,7 @@ def create_list_repo_ids(repositories):
     if bool(repository_ids):
         update_secret_access_to_repo(repository_ids)
     else:
-        print("Unable to create list of repository ids")
+        print_red("Unable to create list of repository ids")
 
 def update_secret_access_to_repo(repository_ids):
     """This function adds the repositories for to access Organisation secrets"""
@@ -84,13 +89,13 @@ def update_secret_access_to_repo(repository_ids):
                 "selected_repository_ids": repo_ids
             }
         except requests.exceptions.RequestException as e:
-            print(f'Error while fetching existing repository names for {secret} secret')
+            print_red(f'Error while fetching existing repository names for {secret} secret')
         try:
             response = requests.put(url, headers=headers, json=data)
             response.raise_for_status()
-            print(f'Updated access to the {secret} secret for all given repos')
+            print_green(f'Updated access to the {secret} secret for all given repos')
         except requests.exceptions.RequestException as e:
-            print(f"Failed to update the secret access for repository. Status code: {response.status_code} {str(e)}")
+            print_red(f"Failed to update the secret access for repository. Status code: {response.status_code} {str(e)}")
 
 def check_repo_exist(repository, refspec, optional_workflows, language):
     """ This Function checks if given Github Repo exists """
@@ -108,10 +113,10 @@ def check_repo_exist(repository, refspec, optional_workflows, language):
         if repository_id:
             get_default_branch(repository_id, repository, refspec, optional_workflows, language)
         else:
-            print(f"The repository '{repository}' does not exist.")
+            print_red(f"The repository '{repository}' does not exist.")
             raise ValueError("The repository '{repository}' does not exist.")
     except requests.exceptions.RequestException as e:
-        print(f"Failed to query GitHub GraphQL API. Status code: {response.status_code} {str(e)}")
+        print_red(f"Failed to query GitHub GraphQL API. Status code: {response.status_code} {str(e)}")
         raise ValueError("The repository '{repository}' does not exist.")
 
 def get_default_branch(repository_id, repository, refspec, optional_workflows, language):
@@ -136,7 +141,7 @@ def get_default_branch(repository_id, repository, refspec, optional_workflows, l
         default_branch = response.json()['data']['repository']['defaultBranchRef']['name']
         check_if_branch_protected(repository, repository_id, default_branch, refspec, optional_workflows, language)
     except requests.exceptions.RequestException as e:
-        print('Failed to retrieve the default branch. Status code:', response.status_code)
+        print_red('Failed to retrieve the default branch. Status code:', response.status_code)
         raise ValueError(f'Failed to retrive default branch for repository {repository} {str(e)}.')
 
 def check_if_branch_protected(repository, repository_id, default_branch, refspec, optional_workflows, language):
@@ -161,86 +166,29 @@ def check_if_branch_protected(repository, repository_id, default_branch, refspec
         response_data = json.loads(response.text)
         protected_branches = [rule["pattern"] for rule in response_data["data"]["repository"]["branchProtectionRules"]["nodes"]]
         if default_branch not in protected_branches:
-            print("calling create branch protection")
             create_branchprotection_rule(repository, repository_id, default_branch, refspec, optional_workflows, language)
         else:
             for rule in response_data["data"]["repository"]["branchProtectionRules"]["nodes"]:
                 if rule["pattern"] == default_branch:
                     protection_rule_id = rule["id"]
                     protected_status_check_context = rule["requiredStatusCheckContexts"]
-                    if refspec.startswith("tags/v1"):
-                        global tags_1x_status_context
-                        tag_status_context = tags_1x_status_context
-                    elif refspec.startswith("tags/v2"):
-                        global tags_2x_status_context
-                        tag_status_context = tags_2x_status_context
-                    elif refspec.startswith("tags/v3"):
-                        global tags_3x_status_context
-                        tag_status_context = tags_3x_status_context
-                    else:
-                        tag_status_context = []
-                    
-                    match language:
-                        case "java":
-                            global java_status_context
-                            language_context = java_status_context
-                        case "python":
-                            language_context = python_status_context
-                        case "golang":
-                            language_context = golang_status_context
-                        case "shell":
-                            language_context = shell_status_context
-                        case _:
-                            language_context = []
-
-                    updated_status_check_context = list(set(protected_status_check_context + required_status_check_contexts + tag_status_context + language_context))
-                    temp_list = ', '.join(f'"{item}"' for item in updated_status_check_context)
-                    updated_status_check_context = '['+temp_list+']'
+                    updated_status_check_context = evaluate_context_for_bpr(refspec, repository, protected_status_check_context)
                     update_branchprotection_rule(repository, protection_rule_id, default_branch, updated_status_check_context)       
     except requests.exceptions.RequestException as e:
-        print(f"Failed to query GitHub GraphQL API. Status code: {response.text} {str(e)}")
+        print_red(f"Failed to query GitHub GraphQL API. Status code: {response.text} {str(e)}")
         raise ValueError("Failed to check branch protection rule for {repository}")
 
 def create_branchprotection_rule(repository, repository_id, default_branch, refspec, optional_workflows, language):
     """ This function creates the branch protection rule """
-    if refspec.startswith("tags/v1.1"):
-        global tags_1x_status_context
-        tag_status_context = tags_1x_status_context
-    elif refspec.startswith("tags/v2"):
-        global tags_2x_status_context
-        tag_status_context = tags_2x_status_context
-    elif refspec.startswith("tags/v3"):
-        global tags_3x_status_context
-        tag_status_context = tags_3x_status_context
-    else:
-        tag_status_context = []
-                    
-    match language:
-        case "java":
-            global java_status_context
-            language_context = java_status_context
-        case "python":
-            global python_status_context
-            language_context = python_status_context
-        case "golang":
-            global golang_status_context
-            language_context = golang_status_context
-        case "shell":
-            global shell_status_context
-            language_context = shell_status_context
-        case _:
-            language_context = []
-    global required_status_check_contexts
-    join_status_context = list(set(required_status_check_contexts + tag_status_context + language_context))
-    temp_list = ', '.join(f'"{item}"' for item in join_status_context)
-    status_check_contexts = '['+temp_list+']'
+    protected_status_check_context = []
+    updated_status_check_context = evaluate_context_for_bpr(refspec, repository, protected_status_check_context)
     query = f'''
     mutation {{
     createBranchProtectionRule(input: {{
         clientMutationId: "uniqueId",
         repositoryId: "{repository_id}",
         pattern: "{default_branch}",
-        requiredStatusCheckContexts: {status_check_contexts},
+        requiredStatusCheckContexts: {updated_status_check_context},
         requiresStatusChecks: true,
         requiresStrictStatusChecks: true
     }}) {{
@@ -262,13 +210,13 @@ def create_branchprotection_rule(repository, repository_id, default_branch, refs
         except AttributeError:
             print(f'Failed to create branch protection rule for {repository}. Response: {response.text}')
         if data:
-            print(f'Branch protection rule created successfully for {repository} on default branch {default_branch}.')
+            print_green(f'Branch protection rule created successfully for {repository} on default branch {default_branch}.')
             print("Required Status Check Contexts:", data["requiredStatusCheckContexts"])
 
         else:
-            print(f'Failed to create branch protection rule for {repository} on default branch {default_branch}.')
+            print_red(f'Failed to create branch protection rule for {repository} on default branch {default_branch}.')
     except requests.exceptions.RequestException as e:
-        print(f"Failed to query GitHub GraphQL API. Response: {response.text} {str(e)}")
+        print_red(f"Failed to query GitHub GraphQL API. Response: {response.text} {str(e)}")
 
 def update_branchprotection_rule(repository, protection_rule_id, default_branch, updated_status_check_context):
     """ This function updates the branch protection rule """
@@ -298,14 +246,59 @@ def update_branchprotection_rule(repository, protection_rule_id, default_branch,
         try:
             data = response.json().get("data", {}).get("updateBranchProtectionRule", {}).get("branchProtectionRule", {})
         except AttributeError:
-            print(f'Failed to update branch protection rule for {repository}. Response: {response.text}')
+            print_red(f'Failed to update branch protection rule for {repository}. Response: {response.text}')
         if data:
-            print(f'Branch protection rule updated successfully for {repository} on default branch "{default_branch}".')
+            print_green(f'Branch protection rule updated successfully for {repository} on default branch "{default_branch}".')
             print("Required Status Check Contexts updated as: ", data["requiredStatusCheckContexts"])
         else:
-            print(f'Failed to updated branch protection rule for {repository} on default branch "{default_branch}".')
+            print_red(f'Failed to updated branch protection rule for {repository} on default branch "{default_branch}".')
     except requests.exceptions.RequestException as e:
-        print(f"Failed to query GitHub GraphQL API. Response: {response.text} {str(e)}")
+        print_red(f"Failed to query GitHub GraphQL API. Response: {response.text} {str(e)}")
+
+def evaluate_context_for_bpr(refspec, repository, protected_status_check_context):
+    """This function evaluates the CONTEXT for branch protection rule and returns the context and language"""
+    if refspec.startswith("tags/v1.1"):
+        global tags_1x_status_context
+        tag_status_context = tags_1x_status_context
+    elif refspec.startswith("tags/v2"):
+        global tags_2x_status_context
+        tag_status_context = tags_2x_status_context
+    elif refspec.startswith("tags/v3"):
+        global tags_3x_status_context
+        tag_status_context = tags_3x_status_context
+    else:
+        tag_status_context = []
+
+    # Get lanaguage variable value for this repository
+    try:
+        response = requests.get(url="https://api.github.com/repos/"+organisation+"/"+repository+"/actions/variables/"+lang_variable, headers=headers)
+        response.raise_for_status()
+        language = response.json()['value']
+    except AttributeError:
+        print_red(f'Failed to retrive value of variable {lang_variable} from {repository}. Response: {response.text}')
+    match language:
+        case "java":
+            global java_status_context
+            language_context = java_status_context
+        case "python":
+            global python_status_context
+            language_context = python_status_context
+        case "golang":
+            global golang_status_context
+            language_context = golang_status_context
+        case "shell":
+            global shell_status_context
+            language_context = shell_status_context
+        case "python_lib":
+            global python_lib_status_context
+            language_context = python_lib_status_context
+        case _:
+            language_context = []
+    global required_status_check_contexts
+    join_status_context = list(set(protected_status_check_context + required_status_check_contexts + tag_status_context + language_context))
+    temp_list = ', '.join(f'"{item}"' for item in join_status_context)
+    updated_status_check_context = '['+temp_list+']'
+    return updated_status_check_context
 
 main()
 
@@ -332,5 +325,5 @@ for module in parsed_yaml.get('modules', []):
         try:
             check_repo_exist(repo_name, refspec, optional_workflows, language)
         except Exception as e:
-            print(f'Error while working on {repo_name}: {str(e)}')
+            print_red(f'Error while working on {repo_name}: {str(e)}')
             continue
