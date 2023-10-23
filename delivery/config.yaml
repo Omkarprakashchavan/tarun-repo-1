@@ -1,0 +1,36 @@
+default_tag_status_context:
+  tags_1x_status_context:
+    - 'tag1'
+    - 'tag1.1'
+  tags_2x_status_context:
+    - 'tag2'
+    - 'tag2.1'
+    - 'tag2.2'
+  tags_3x_status_context:
+    - 'tag3'
+    - 'tag3.1'
+    - 'tag3.2'
+language:
+  python:
+    - 'python'
+    - 'py'
+  java:
+    - 'java'
+    - 'jdk'
+    - 'jre'
+  golang:
+    - 'golang'
+    - 'go'
+  python_lib:
+    - 'python_lib'
+    - 'lib'
+  shell:
+    - 'shell'
+    - 'linux'
+secrets:
+  - 'OWNER'
+  - 'USER'
+required_status_check_contexts:
+  - 'mci-check / secret-scanner / Secret_Scan'
+  - 'mci-check / malware-scanner'
+lang_variable: 'GH_REPO_LANG'
