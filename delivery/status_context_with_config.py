@@ -16,17 +16,35 @@ def print_red(skk): print("\033[91m {}\033[00m" .format(skk))
 def print_green(skk): print("\033[92m {}\033[00m" .format(skk))
 
 # Access variables
+
+# Read the YAML configuration file
+with open("config.yaml", "r") as config_file:
+    config = yaml.safe_load(config_file)
 try:
-    # Read the YAML configuration file
-    with open("config.yaml", "r") as config_file:
-        config = yaml.safe_load(config_file)
     default_tag_status_context = config['default_tag_status_context']
+except KeyError:
+    print_red("default_tag_status_context is not available in deployer-config.yaml")
+    default_tag_status_context = []
+try:
     default_language_context = config['language']
+except KeyError:
+    print_red("language is not available in deployer-config.yaml")
+    default_language_context = {}
+try: 
     secrets = config["secrets"]
+except KeyError:
+    print_red("secrets is not available in deployer-config.yaml")
+    secrets = []
+try:
     lang_variable = config["lang_variable"]
+except KeyError:
+    print_red("lang_variable is not available in deployer-config.yaml")
+    lang_variable = ''
+try:
     required_status_check_contexts = config["required_status_check_contexts"]
-except KeyError as ke:
-    print_red(f"Failed to read variables from config file. error: {str(ke)}")
+except KeyError:
+    print_red("required_status_check_contexts is not available in deployer-config.yaml")
+    required_status_check_contexts = []
 
 headers = {
     'Authorization': f'Bearer {github_token}',
@@ -79,25 +97,28 @@ def update_secret_access_to_repo(repository_ids):
         'Authorization': f'Bearer {github_token}',
         'X-GitHub-Api-Version': '2022-11-28'
     }
-    for secret in secrets:
-        url = f"https://api.github.com/orgs/{organisation}/actions/secrets/{secret}/repositories"
-        try:
-            response = requests.get(url, headers=headers)
-            response.raise_for_status()
-            response_data = json.loads(response.text)
-            existing_repo_ids = [rule ["id"] for rule in response_data["repositories"]]
-            repo_ids = list(set(existing_repo_ids + repository_ids))
-            data = {
-                "selected_repository_ids": repo_ids
-            }
-        except requests.exceptions.RequestException as e:
-            print_red(f'Error while fetching existing repository names for {secret} secret')
-        try:
-            response = requests.put(url, headers=headers, json=data)
-            response.raise_for_status()
-            print_green(f'Updated access to the {secret} secret for all given repos')
-        except requests.exceptions.RequestException as e:
-            print_red(f"Failed to update the secret access for repository. Status code: {response.status_code} {str(e)}")
+    if len(secrets) != 0:
+        for secret in secrets:
+            url = f"https://api.github.com/orgs/{organisation}/actions/secrets/{secret}/repositories"
+            try:
+                response = requests.get(url, headers=headers)
+                response.raise_for_status()
+                response_data = json.loads(response.text)
+                existing_repo_ids = [rule ["id"] for rule in response_data["repositories"]]
+                repo_ids = list(set(existing_repo_ids + repository_ids))
+                data = {
+                    "selected_repository_ids": repo_ids
+                }
+            except requests.exceptions.RequestException as e:
+                print_red(f'Error while fetching existing repository names for {secret} secret')
+            try:
+                response = requests.put(url, headers=headers, json=data)
+                response.raise_for_status()
+                print_green(f'Updated access to the {secret} secret for all given repos')
+            except requests.exceptions.RequestException as e:
+                print_red(f"Failed to update the secret access for repository. Status code: {response.status_code} {str(e)}")
+    else:
+        print_red("Secrets are not defined in deployer-config.yaml file")
 
 def check_repo_exist(repository, refspec, optional_workflows, language):
     """ This Function checks if given Github Repo exists """
@@ -185,7 +206,7 @@ def create_branchprotection_rule(repository, repository_id, default_branch, refs
     updated_status_check_context = evaluate_context_for_bpr(refspec, repository, protected_status_check_context)
     query = f'''
     mutation {{
-    createBranchProtectionRule(input: {{
+        createBranchProtectionRule(input: {{
         clientMutationId: "uniqueId",
         repositoryId: "{repository_id}",
         pattern: "{default_branch}",
@@ -259,14 +280,25 @@ def update_branchprotection_rule(repository, protection_rule_id, default_branch,
 def evaluate_context_for_bpr(refspec, repository, protected_status_check_context):
     """This function evaluates the CONTEXT for branch protection rule and returns the context and language"""
     global default_tag_status_context
+    tag_status_context = []
     if refspec.startswith("tags/v1.1"):
-        tag_status_context = default_tag_status_context['tags_1x_status_context']
-    elif refspec.startswith("tags/v2"):
-        tag_status_context = default_tag_status_context['tags_2x_status_context']
-    elif refspec.startswith("tags/v3"):
-        tag_status_context = default_tag_status_context['tags_3x_status_context']
+        try:
+            tag_status_context = default_tag_status_context['tags_1x_status_context']
+        except KeyError:
+            print_red("Tag status context not available for tags_1x_status_context in deployer-config.yaml")
+    elif refspec.startswith("tags/v1.2"):
+        try:
+            tag_status_context = default_tag_status_context['tags_2x_status_context']
+        except KeyError:
+            print_red("Tag status context not available for tags_2x_status_context in deployer-config.yaml")
+    elif refspec.startswith("tags/v1.3"):
+        try:
+            tag_status_context = default_tag_status_context['tags_3x_status_context']
+        except KeyError:
+            print_red("Tag status context not available for tags_3x_status_context in deployer-config.yaml")
     else:
         tag_status_context = []
+    #print(f"tag_status_context {tag_status_context}")
 
     # Get lanaguage variable value for this repository
     try:
@@ -277,6 +309,7 @@ def evaluate_context_for_bpr(refspec, repository, protected_status_check_context
         if language in default_language_context:
             language_context = default_language_context[language]
         else:
+            print_red(f"{lang_variable} status check context not found in deployer-config.yaml")
             language_context = []
     except requests.exceptions.RequestException:
         print_red(f'{lang_variable} repository variable not found in {repository}.')
