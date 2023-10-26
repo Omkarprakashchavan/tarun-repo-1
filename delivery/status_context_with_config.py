@@ -281,24 +281,11 @@ def evaluate_context_for_bpr(refspec, repository, protected_status_check_context
     """This function evaluates the CONTEXT for branch protection rule and returns the context and language"""
     global default_tag_status_context
     tag_status_context = []
-    if refspec.startswith("tags/v1.1"):
-        try:
-            tag_status_context = default_tag_status_context['tags_1x_status_context']
-        except KeyError:
-            print_red("Tag status context not available for tags_1x_status_context in deployer-config.yaml")
-    elif refspec.startswith("tags/v1.2"):
-        try:
-            tag_status_context = default_tag_status_context['tags_2x_status_context']
-        except KeyError:
-            print_red("Tag status context not available for tags_2x_status_context in deployer-config.yaml")
-    elif refspec.startswith("tags/v1.3"):
-        try:
-            tag_status_context = default_tag_status_context['tags_3x_status_context']
-        except KeyError:
-            print_red("Tag status context not available for tags_3x_status_context in deployer-config.yaml")
-    else:
-        tag_status_context = []
-    #print(f"tag_status_context {tag_status_context}")
+    if len(default_tag_status_context) > 0 and refspec:
+        for key in default_tag_status_context.keys():
+            if refspec.startswith(key):
+                tag_status_context = default_tag_status_context[key]
+                break
 
     # Get lanaguage variable value for this repository
     try:
