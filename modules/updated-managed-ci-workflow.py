@@ -9,12 +9,11 @@ from datetime import datetime
 import yaml
 from ruamel.yaml import YAML
 
-#sys.path.append(f'{os.path.dirname(__file__)}/..')
-sys.path.append(f'{os.path.dirname(__file__)}')
+sys.path.append(f'{os.path.dirname(__file__)}/..')
 import subprocess
-import myutils as mu
-from myutils import file_exists, mkdir_p
-from github_apis import GitHubAPIs
+import utils.myutils as mu
+from utils.myutils import file_exists, mkdir_p
+from utils.github_apis import GitHubAPIs
 from os import listdir
 from os.path import isfile, join
 
