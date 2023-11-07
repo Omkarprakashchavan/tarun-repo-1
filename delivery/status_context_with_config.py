@@ -4,77 +4,65 @@ import json
 import sys
 import yaml
 import os
+from typing import Dict, List, Union
+from datetime import datetime
+
+import yaml
+from ruamel.yaml import YAML
+
+sys.path.append(f'{os.path.dirname(__file__)}/..')
 
 api_url = 'https://api.github.com/graphql'
 github_token = os.environ['GITHUB_APP_TOKEN']
 organisation = 'glcp'
 repositories = []
 repository_ids = []
-
-def print_red(skk): print("\033[91m {}\033[00m" .format(skk))
-
-def print_green(skk): print("\033[92m {}\033[00m" .format(skk))
-
-# Access variables
-
-# Read the YAML configuration file
-with open("config.yaml", "r") as config_file:
-    config = yaml.safe_load(config_file)
-try:
-    default_tag_status_context = config['default_tag_status_context']
-except KeyError:
-    print_red("default_tag_status_context is not available in deployer-config.yaml")
-    default_tag_status_context = []
-try:
-    default_language_context = config['language']
-except KeyError:
-    print_red("language is not available in deployer-config.yaml")
-    default_language_context = {}
-try: 
-    secrets = config["secrets"]
-except KeyError:
-    print_red("secrets is not available in deployer-config.yaml")
-    secrets = []
-try:
-    lang_variable = config["lang_variable"]
-except KeyError:
-    print_red("lang_variable is not available in deployer-config.yaml")
-    lang_variable = ''
-try:
-    required_status_check_contexts = config["required_status_check_contexts"]
-except KeyError:
-    print_red("required_status_check_contexts is not available in deployer-config.yaml")
-    required_status_check_contexts = []
-
 headers = {
     'Authorization': f'Bearer {github_token}',
     'Content-Type': 'application/json'
 }
 
-try:
-    sys.argv[1]
-except IndexError:
-    sys.exit("workflow-deployment.yaml file expected as input argument")
+def print_red(skk): print("\033[91m {}\033[00m" .format(skk))
 
-def main():
-    """This function process YAML input file and fetches repository names into list"""
-    file_path = sys.argv[1]
-    with open(file_path, 'r') as file:
-        yaml_content = file.read()
+def print_green(skk): print("\033[92m {}\033[00m" .format(skk))
 
-    # Parse the YAML content
-    parsed_yaml = yaml.safe_load(yaml_content)
+def get_config(item='', data_type=any):
+    '''This function checks if requested item exists in deployer-config.yaml or not'''
+    # Read the YAML configuration file
+    with open("config.yaml", "r") as config_file:
+        config = yaml.safe_load(config_file)
+    try:
+        item = config[item]
+    except KeyError:
+        print_red(f'{item} is not available in deployer-config.yaml')
+        item = data_type
+    return item
 
-    # Fetch repositories names into a list
-    repositories = []
-    modules = parsed_yaml.get('modules', [])
-    for module in modules:
-        repositories.extend([repo['name'] for repo in module.get('repositories', [])])
-    globals()["repositories"] = repositories
-    if bool(repositories):
-        create_list_repo_ids(repositories)
+def main(module_name='', module_description='', repositories=[], default_managed_refspec=None):
+    # Extract repository names
+    repository_list = [reps['name'] for reps in repositories]
+    if bool(repository_list):
+        create_list_repo_ids(repository_list)
     else:
         print_red("Unable to fetch repository names from input file")
+
+    for repository in repositories:
+        repo_name = repository.get('name')
+        refspec = repository.get('refspec')
+        try:
+            optional_workflows = repository.get('optional_workflows', [])
+        except IndentationError:
+            optional_workflows = []
+        try:
+            language = repository.get('language', [])
+            language = ', '.join(language)
+        except IndentationError:
+            language = ''
+        try:
+            check_repo_exist(repo_name, refspec, optional_workflows, language)
+        except Exception as e:
+            print_red(f'Error while working on {repo_name}: {str(e)}')
+            continue
 
 def create_list_repo_ids(repositories):
     """This functions creates list of repository ids where secret access needs to be updated"""
@@ -97,6 +85,7 @@ def update_secret_access_to_repo(repository_ids):
         'Authorization': f'Bearer {github_token}',
         'X-GitHub-Api-Version': '2022-11-28'
     }
+    secrets = get_config(item='secrets', data_type=[])
     if len(secrets) != 0:
         for secret in secrets:
             url = f"https://api.github.com/orgs/{organisation}/actions/secrets/{secret}/repositories"
@@ -230,7 +219,7 @@ def create_branchprotection_rule(repository, repository_id, default_branch, refs
         try:
             data = response.json().get("data", {}).get("createBranchProtectionRule", {}).get("branchProtectionRule", {})
         except AttributeError:
-            print(f'Failed to create branch protection rule for {repository}. Response: {response.text}')
+            print_red(f'Failed to create branch protection rule for {repository}. Response: {response.text}')
         if data:
             print_green(f'Branch protection rule created successfully for {repository} on default branch {default_branch}.')
             print("Required Status Check Contexts:", data["requiredStatusCheckContexts"])
@@ -279,7 +268,7 @@ def update_branchprotection_rule(repository, protection_rule_id, default_branch,
 
 def evaluate_context_for_bpr(refspec, repository, protected_status_check_context):
     """This function evaluates the CONTEXT for branch protection rule and returns the context and language"""
-    global default_tag_status_context
+    default_tag_status_context = get_config(item='default_tag_status_context', data_type=[])
     tag_status_context = []
     if len(default_tag_status_context) > 0 and refspec:
         for key in default_tag_status_context.keys():
@@ -289,10 +278,11 @@ def evaluate_context_for_bpr(refspec, repository, protected_status_check_context
 
     # Get lanaguage variable value for this repository
     try:
+        lang_variable = get_config(item='lang_variable', data_type='')
         response = requests.get(url=f"https://api.github.com/repos/{organisation}/{repository}/actions/variables/{lang_variable}", headers=headers)
         response.raise_for_status()
         language = response.json()['value']
-        global default_language_context
+        default_language_context = get_config(item='default_language_context', data_type={})
         if language in default_language_context:
             language_context = default_language_context[language]
         else:
@@ -301,36 +291,8 @@ def evaluate_context_for_bpr(refspec, repository, protected_status_check_context
     except requests.exceptions.RequestException:
         print_red(f'{lang_variable} repository variable not found in {repository}.')
         language_context = []
-    global required_status_check_contexts
+    required_status_check_contexts = get_config(item='required_status_check_contexts', data_type=[])
     join_status_context = list(set(protected_status_check_context + required_status_check_contexts + tag_status_context + language_context))
     temp_list = ', '.join(f'"{item}"' for item in join_status_context)
     updated_status_check_context = '['+temp_list+']'
     return updated_status_check_context
-
-main()
-
-file_path = sys.argv[1]
-with open(file_path, 'r') as file:
-    yaml_content = file.read()
-
-# Parse the YAML content
-parsed_yaml = yaml.safe_load(yaml_content)
-for module in parsed_yaml.get('modules', []):
-    repositories = module.get('repositories', [])
-    for repository in repositories:
-        repo_name = repository.get('name')
-        refspec = repository.get('refspec')
-        try:
-            optional_workflows = repository.get('optional_workflows', [])
-        except IndentationError:
-            optional_workflows = []
-        try:
-            language = repository.get('language', [])
-            language = ', '.join(language)
-        except IndentationError:
-            language = ''
-        try:
-            check_repo_exist(repo_name, refspec, optional_workflows, language)
-        except Exception as e:
-            print_red(f'Error while working on {repo_name}: {str(e)}')
-            continue
