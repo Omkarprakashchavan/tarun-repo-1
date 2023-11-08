@@ -16,7 +16,6 @@ api_url = 'https://api.github.com/graphql'
 github_token = os.environ['GITHUB_APP_TOKEN']
 organisation = 'glcp'
 repositories = []
-repository_ids = []
 headers = {
     'Authorization': f'Bearer {github_token}',
     'Content-Type': 'application/json'
@@ -42,7 +41,8 @@ def main(module_name='', module_description='', repositories=[], default_managed
     # Extract repository names
     repository_list = [reps['name'] for reps in repositories]
     if bool(repository_list):
-        create_list_repo_ids(repository_list)
+        common_secrets = get_config(item='common-secrets', data_type=[])
+        create_list_repo_ids(repository_list, common_secrets)
     else:
         print_red("Unable to fetch repository names from input file")
 
@@ -59,12 +59,28 @@ def main(module_name='', module_description='', repositories=[], default_managed
         except IndentationError:
             language = ''
         try:
+            needs = repository.get('needs', [])
+            specific_secrets = get_config(item='specific-secrets', data_type=[])
+            spl_secrets = []
+            if len(needs) != 0:
+                for need in needs:
+                    if need in specific_secrets.keys():
+                        spl_secrets.append(specific_secrets[need])
+                spl_secrets = [item for sublist in spl_secrets for item in sublist]
+        except IndentationError:
+            spl_secrets = []
+        try:
             check_repo_exist(repo_name, refspec, optional_workflows, language)
         except Exception as e:
             print_red(f'Error while working on {repo_name}: {str(e)}')
             continue
+        try:
+            repo_name = list(repo_name.split(" "))
+            create_list_repo_ids(repo_name, spl_secrets)
+        except Exception as e:
+            print_red(f'Error while updating specific secrets {spl_secrets} on {repo_name}: {str(e)}')
 
-def create_list_repo_ids(repositories):
+def create_list_repo_ids(repositories, secrets):
     """This functions creates list of repository ids where secret access needs to be updated"""
     auth_header = {'Authorization': 'token '+github_token, 'X-GitHub-Api-Version': '2022-11-28', 'Accept': 'application/vnd.github+json'}
     repository_ids = []
@@ -72,20 +88,18 @@ def create_list_repo_ids(repositories):
         githubapi = f"https://api.github.com/repos/{organisation}/{repo}"
         repo_response = requests.get(githubapi, headers=auth_header)
         repository_ids.append(repo_response.json()['id'])
-    globals()["repository_ids"] = repository_ids
     if bool(repository_ids):
-        update_secret_access_to_repo(repository_ids)
+        update_secret_access_to_repo(repository_ids, secrets)
     else:
         print_red("Unable to create list of repository ids")
 
-def update_secret_access_to_repo(repository_ids):
+def update_secret_access_to_repo(repository_ids, secrets):
     """This function adds the repositories for to access Organisation secrets"""
     headers = {
         'Accept': 'application/vnd.github+json',
         'Authorization': f'Bearer {github_token}',
         'X-GitHub-Api-Version': '2022-11-28'
     }
-    secrets = get_config(item='secrets', data_type=[])
     if len(secrets) != 0:
         for secret in secrets:
             url = f"https://api.github.com/orgs/{organisation}/actions/secrets/{secret}/repositories"
@@ -103,11 +117,11 @@ def update_secret_access_to_repo(repository_ids):
             try:
                 response = requests.put(url, headers=headers, json=data)
                 response.raise_for_status()
-                print_green(f'Updated access to the {secret} secret for all given repos')
+                print_green(f'Updated access to the {secret} secret for given repos')
             except requests.exceptions.RequestException as e:
                 print_red(f"Failed to update the secret access for repository. Status code: {response.status_code} {str(e)}")
     else:
-        print_red("Secrets are not defined in deployer-config.yaml file")
+        print("Secrets are not defined in deployer-config.yaml file")
 
 def check_repo_exist(repository, refspec, optional_workflows, language):
     """ This Function checks if given Github Repo exists """
@@ -286,7 +300,7 @@ def evaluate_context_for_bpr(refspec, repository, protected_status_check_context
         if language in default_language_context:
             language_context = default_language_context[language]
         else:
-            print_red(f"{lang_variable} status check context not found in deployer-config.yaml")
+            print(f"{lang_variable} status check context not found in deployer-config.yaml")
             language_context = []
     except requests.exceptions.RequestException:
         print_red(f'{lang_variable} repository variable not found in {repository}.')
