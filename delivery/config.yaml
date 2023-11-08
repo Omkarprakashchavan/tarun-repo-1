@@ -27,9 +27,16 @@ language:
   shell:
     - 'shell'
     - 'linux'
-secrets:
+common-secrets:
   - 'OWNER'
   - 'USER'
+specific-secrets:
+  ft-on-pr:
+    - "ABC"
+    - "EFG"
+  ft-on-issue:
+    - 'PQR'
+    - 'XYZ'
 required_status_check_contexts:
   - 'mci-check / secret-scanner / Secret_Scan'
   - 'mci-check / malware-scanner'
