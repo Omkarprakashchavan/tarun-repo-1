@@ -5,12 +5,14 @@ import os
 import csv
 import sys
 import re
+import yaml
 from os.path import basename
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # Open the CSV file for reading
 csvfilename = 'all-repos.csv'
+yaml_file = 'workflow-deployer.yaml'
 
 def get_env(key='', if_fail=False):
     '''This function fetches value environment variable'''
@@ -44,9 +46,16 @@ def main():
             reader = csv.DictReader(csvfile)
             developer_email_list = []
             manager_email_list = []
+            with open(yaml_file, 'r') as file:
+                parsed_yaml = yaml.safe_load(file.read())
+                repositories = []
+                modules = parsed_yaml.get('modules', [])
+                for module in modules:
+                    repositories.extend([repo['name'] for repo in module.get('repositories', [])])
             for row in reader:
-                developer_email_list.append(row['Developer'])
-                manager_email_list.append(row['Manager'])
+                if row['Repo name'] in repositories:
+                    developer_email_list.append(row['Developer'])
+                    manager_email_list.append(row['Manager'])
         developer_email_list = list(set(developer_email_list))
         manager_email_list = list(set(manager_email_list))
     except FileNotFoundError as fnfe:
