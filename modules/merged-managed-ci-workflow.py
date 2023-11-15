@@ -54,7 +54,7 @@ def main(module_name='', module_description='', repositories=[], default_managed
     logger.debug(f'Final list of Repos in the glcp org')
 
     sq_data: Dict[str, List[Dict[str,str]]] = \
-        sonarqube_config(org_name=org_name)
+       sonarqube_config(org_name=org_name)
     num_sq_projects = len(sq_data['Projects'])
 
     new_deploys={}
@@ -134,6 +134,8 @@ def main(module_name='', module_description='', repositories=[], default_managed
                 else:
                     workflow_exists.append(f'{primary_workflow_path}/{pwf}')
                     logger.debug(f'md5sum of master repo and user repo {r} workflow is the same.  skipping deployment.')
+        # print(workflow_sources            
+        wf_cleanup(primary_workflows=primary_workflows, template_workflows=template_workflows, optional_workflows=optional_workflows, repo_name=r)
         git_push_workflows(r, workflow_sources, app_token)
 
         # Add to the dict of new deployments for the report
@@ -153,8 +155,6 @@ def main(module_name='', module_description='', repositories=[], default_managed
         logger.debug('nothing to push... all repos are present in the SonarQube config file')
 
     update_log_file(new_deploys=new_deploys, old_deploys=old_deploys)
-
-    wf_cleanup(primary_workflows=primary_workflows, template_workflows=template_workflows, optional_workflows=optional_workflows, repo_name=r)
 
     #####################################################################################################################################
 
@@ -179,7 +179,7 @@ def main(module_name='', module_description='', repositories=[], default_managed
             language = ''
         try:
             needs = repository.get('needs', [])
-            specific_secrets = get_config(item='specific-secrets', data_type=[])
+            specific_secrets = get_config(item='optional-secrets', data_type=[])
             spl_secrets = []
             if len(needs) != 0:
                 for need in needs:
@@ -208,6 +208,8 @@ def wf_cleanup(primary_workflows=[], template_workflows=[], optional_workflows=[
      # This function will remove the files from the remote repo if the files are not mentioned 
     # in the manifest file  and the file names start with file name pattern 'managed-ci'.
     workflow_dir=f'{os.path.dirname(__file__)}/../{repo_name}/.github/workflows'
+    if not os.path.exists(workflow_dir):
+        os.makedirs(workflow_dir)
     wf_files_in_user_repo = [f for f in listdir(workflow_dir) if isfile(join(workflow_dir, f))]
     wf_names=primary_workflows + template_workflows + optional_workflows
     wf_files_to_be_deleted=[]
@@ -225,6 +227,7 @@ def wf_cleanup(primary_workflows=[], template_workflows=[], optional_workflows=[
         cmds=[f'cd {workflow_dir}; git rm {i}']
         cmds = [
             f'cd {workflow_dir}; git rm {i}',
+            f'cd {workflow_dir}; git add .',
             f"cd {repo_name}; git commit -m '[skip actions] delete workflow(s) {i}'"
            ]
         for cmd in cmds:
@@ -244,7 +247,7 @@ def wf_cleanup(primary_workflows=[], template_workflows=[], optional_workflows=[
 
 def get_dest_workflow_path(repo_name, workflow):
     workflow_path=f'{os.path.dirname(__file__)}/../{repo_name}/.github/workflows/{workflow}'
-    if mu.file_exists(workflow_path, check_nonzero_filesize=True):
+    if file_exists(workflow_path, check_nonzero_filesize=True):
         return workflow_path
     return None
 
@@ -437,7 +440,7 @@ def update_log_file(new_deploys, old_deploys, report_filename=f'devops-reports/w
 def get_config(item='', data_type=any):
     '''This function checks if requested item exists in deployer-config.yaml or not'''
     # Read the YAML configuration file
-    with open("config.yaml", "r") as config_file:
+    with open("deployer-config.yaml", "r") as config_file:
         config = yaml.safe_load(config_file)
     try:
         item = config[item]
@@ -638,9 +641,9 @@ def update_branchprotection_rule(repository, protection_rule_id, default_branch,
             data = response.json().get("data", {}).get("updateBranchProtectionRule", {}).get("branchProtectionRule", {})
         except AttributeError:
             logger.debug(f'Failed to update branch protection rule for {repository}. Response: {response.text}')
-        if data:
+        if data:       
             logger.info(f'Branch protection rule updated successfully for {repository} on default branch "{default_branch}".')
-            logger.info(f"Required Status Check Contexts for {repository} on branch {default_branch} updated as: ", data["requiredStatusCheckContexts"])
+            logger.info(f'Required Status Check Contexts for {repository} on branch {default_branch} updated as:  {data["requiredStatusCheckContexts"]}')
         else:
             logger.debug(f'Failed to updated branch protection rule for {repository} on default branch "{default_branch}".')
     except requests.exceptions.RequestException as e:
@@ -675,4 +678,5 @@ def evaluate_context_for_bpr(refspec, repository, protected_status_check_context
     join_status_context = list(set(protected_status_check_context + required_status_check_contexts + tag_status_context + language_context))
     temp_list = ', '.join(f'"{item}"' for item in join_status_context)
     updated_status_check_context = '['+temp_list+']'
+    print(updated_status_check_context)
     return updated_status_check_context
