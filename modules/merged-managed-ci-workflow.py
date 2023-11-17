@@ -154,10 +154,12 @@ def main(module_name='', module_description='', repositories=[], default_managed
     else:
         logger.debug('nothing to push... all repos are present in the SonarQube config file')
 
+    repository_operations(repositories)
     update_log_file(new_deploys=new_deploys, old_deploys=old_deploys)
 
-    #####################################################################################################################################
 
+def repository_operations(repositories):
+    '''This functions performs the required operations on repositories'''
     repository_list = [reps['name'] for reps in repositories]
     if bool(repository_list):
         common_secrets = get_config(item='common-secrets', data_type=[])
@@ -181,11 +183,10 @@ def main(module_name='', module_description='', repositories=[], default_managed
             needs = repository.get('needs', [])
             specific_secrets = get_config(item='optional-secrets', data_type=[])
             spl_secrets = []
-            if len(needs) != 0:
-                for need in needs:
-                    if need in specific_secrets.keys():
-                        spl_secrets.append(specific_secrets[need])
-                spl_secrets = [item for sublist in spl_secrets for item in sublist]
+            for need in needs:
+                if need in specific_secrets.keys():
+                    spl_secrets.append(specific_secrets[need])
+            spl_secrets = [item for sublist in spl_secrets for item in sublist]
         except IndentationError:
             spl_secrets = []
         try:
@@ -679,4 +680,4 @@ def evaluate_context_for_bpr(refspec, repository, protected_status_check_context
     temp_list = ', '.join(f'"{item}"' for item in join_status_context)
     updated_status_check_context = '['+temp_list+']'
     print(updated_status_check_context)
-    return updated_status_check_context
+    return updated_status_check_cont
