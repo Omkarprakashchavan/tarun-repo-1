@@ -1,0 +1,23 @@
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:1: File does not end with a newline. [NewlineAtEndOfFile]
+362
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:24:26: Name 'CACHE_NAME_SUFFIX' must match pattern '^[a-z][a-zA-Z0-9]*$'. [MemberName]
+363
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:26:5: Class 'CacheConfig' looks like designed for extension (can be subclassed), but the method 'cacheManager' does not have javadoc that explains how to do that safely. If class is not designed for extension consider making the class 'CacheConfig' final or making the method 'cacheManager' static/final/abstract/empty, or adding allowed annotation for the method. [DesignForExtension]
+364
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:44: Line is longer than 80 characters (found 84). [LineLength]
+365
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:47: Line is longer than 80 characters (found 106). [LineLength]
+366
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:48: Line is longer than 80 characters (found 102). [LineLength]
+367
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:50: Line is longer than 80 characters (found 94). [LineLength]
+368
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:55: Line is longer than 80 characters (found 89). [LineLength]
+369
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:58: Line is longer than 80 characters (found 101). [LineLength]
+370
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:59: Line is longer than 80 characters (found 81). [LineLength]
+371
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:60: Line is longer than 80 characters (found 99). [LineLength]
+372
+Error:  /github/workspace/src/main/java/com/aruba/ccs/subscriptionmanagement/config/local/CacheConfig.java:69: Line is longer than 80 characters (found 96). [LineLength]
