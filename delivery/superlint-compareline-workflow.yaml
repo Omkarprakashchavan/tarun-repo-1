@@ -13,49 +13,13 @@ permissions:
   packages: write
 
 jobs:
-  Git-operations:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Set Completion Time
-        run: |
-          git diff origin/${{ github.base_ref }} origin/${{ github.head_ref }} | gawk '
-          match($0,"^@@ -([0-9]+),([0-9]+) [+]([0-9]+),([0-9]+) @@",a){
-            left=a[1]
-            ll=length(a[2])
-            right=a[3]
-            rl=length(a[4])
-          }
-          /^(---|\+\+\+|[^-+ ])/{ print;next }
-          { line=substr($0,2) }
-          /^[-]/{ printf "-%"ll"s %"rl"s:%s\n",left++,""     ,line;next }
-          /^[+]/{ printf "+%"ll"s %"rl"s:%s\n",""    ,right++,line;next }
-                { printf " %"ll"s %"rl"s:%s\n",left++,right++,line }
-          ' > git-diff.txt
-
-      - name: Upload git difference
-        uses: actions/upload-artifact@v3
-        with:
-          name: git-diff.txt
-          path: git-diff.txt
-
-  lint-operations:
-    needs: Git-operations
+  lint:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
-
-      - uses: actions/download-artifact@master
-        with:
-          name: git-diff.txt
-          path: git-diff.txt
 
       - name: Lint Code Base
         uses: super-linter/super-linter/slim@v5
@@ -69,6 +33,17 @@ jobs:
           LOG_FILE: super-linter.log
           LOG_LEVEL: ERROR
 
-      - name: execute py script 
-        if: always()
-        run: python git-lint.py
+      - name: Upload Lint report
+        uses: actions/upload-artifact@v3
+        with:
+          name: super-linter.log
+          path: super-linter.log
+          
+  Lint-Code-Base:
+    needs: lint-operations
+    uses: githubactions-omkar/repo-1/.github/workflows/reusable-lint.yaml@main
+    with:
+      head_branch: ${{ github.head_ref }}
+      target_branch: ${{ github.base_ref }}
+      lint_logfile_name: super-linter.log
+      lint_logfile_path: super-linter.log
