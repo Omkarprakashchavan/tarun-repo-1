@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import re
+import sys
 
 diff_file = 'git-diff.txt'
 lint_logfile = 'super-linter.log'
@@ -43,3 +44,4 @@ for file, errors in error_dict.items():
     if errors:
         error_message = f"{file} having lint error on line {', '.join(errors)}"
         print(error_message)
+        sys.exit(1)
