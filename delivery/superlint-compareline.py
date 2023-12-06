@@ -39,9 +39,12 @@ with open(lint_logfile, 'r', encoding="utf8") as file:
                     if line_number not in error_dict[file_path]:
                         error_dict[file_path].append(line_number)
 
-
+counter = 1
 for file, errors in error_dict.items():
     if errors:
         error_message = f"{file} having lint error on line {', '.join(errors)}"
         print(error_message)
+        counter += 1
+    counter += 1
+    if counter == len(error_dict):
         sys.exit(1)
