@@ -1,0 +1,30 @@
+name: update tags in workflow
+on:
+  pull_request:
+
+jobs:
+  create-update-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      
+      - name: Set Up Git
+        run: |
+          git config --global user.email "glcp-giotto@hpe.com"
+          git config --global user.name "glcp giotto"
+
+      - name: Get PR Number
+        id: pr
+        run: |
+          echo "PR_NUMBER=$(echo ${{ github.event.number }})" >> $GITHUB_OUTPUT
+      
+      - name: Create Branch
+        run: |
+          pr_number="${{ steps.pr.outputs.PR_NUMBER }}"
+          new_branch="rc-$pr_number"
+          echo $new_branch
+          git checkout $new_branch 2>/dev/null || git checkout -b $new_branch 2>/dev/null
+          find "workflows" -type f -exec sed -i "s/@main/@${new_branch}/" {} +
+          git push origin "$new_branch"
