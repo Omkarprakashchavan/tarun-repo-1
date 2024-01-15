@@ -182,7 +182,7 @@ def update_csv_file(repo_name: str, error_msg):
         sequence_to_check = ["GH006", "Protected branch update failed for", "a/"]
         if contains_sequence(error_msg, sequence_to_check):
             error_msg = "Failed to update the org-policies due to branch protection rule"
-            writer.writerow({'Repository Name': repo_name, 'Error Message': f'stderr: {error_msg}'}, 'Timestamp': timestamp)
+            writer.writerow({'Repository Name': repo_name, 'Error Message': error_msg, 'Timestamp': timestamp})
         else:
-            writer.writerow({'Repository Name': repo_name, 'Error Message': f'stderr: {error_msg}'}, 'Timestamp': timestamp)
+            writer.writerow({'Repository Name': repo_name, 'Error Message': error_msg, 'Timestamp': timestamp})
         csv_file.close()
