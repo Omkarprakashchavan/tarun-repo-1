@@ -15,6 +15,7 @@ from datetime import datetime
 logger = None
 topdir = os.path.dirname(os.path.abspath(sys.argv[0]))
 logdir = f'{topdir}/logdir'
+error_file = os.environ["GITHUB_WORKSPACE"]+'/devops-reports/policy-reports/error-logs.csv'
 
 # pull_request_token=os.environ.get("GIT_TOKEN")
 def main(repo_exclude_list,module_description, module_name):
@@ -168,7 +169,7 @@ def git_push(repo_name: str, pr_template, token):
 
 def update_csv_file(repo_name: str, error_msg):
     '''This function updates the error log details to the csv file'''
-    with open('error_log.csv', mode='a', newline='') as csv_file:
+    with open(error_file, mode='a', newline='') as csv_file:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fieldnames = ['Repository Name', 'Error Message', 'Timestamp']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
