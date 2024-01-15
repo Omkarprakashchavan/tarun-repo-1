@@ -15,7 +15,6 @@ from datetime import datetime
 logger = None
 topdir = os.path.dirname(os.path.abspath(sys.argv[0]))
 logdir = f'{topdir}/logdir'
-error_file = os.environ["GITHUB_WORKSPACE"]+'/devops-reports/policy-reports/error-logs.csv'
 
 # pull_request_token=os.environ.get("GIT_TOKEN")
 def main(repo_exclude_list,module_description, module_name):
@@ -167,9 +166,12 @@ def git_push(repo_name: str, pr_template, token):
            update_csv_file(repo_name, err)
            # sys.exit(1)
 
+def contains_sequence(main_string, sequence):
+    return all(word in main_string for word in sequence)
+
 def update_csv_file(repo_name: str, error_msg):
     '''This function updates the error log details to the csv file'''
-    with open(error_file, mode='a', newline='') as csv_file:
+    with open('error_log.csv', mode='a', newline='') as csv_file:
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fieldnames = ['Repository Name', 'Error Message', 'Timestamp']
         writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
@@ -177,5 +179,10 @@ def update_csv_file(repo_name: str, error_msg):
         if csv_file.tell() == 0:
             writer.writeheader()
         # Write error details to the CSV file
-        writer.writerow({'Repository Name': repo_name, 'Error Message': f'stderr: {error_msg}'}, 'Timestamp': timestamp)
+        sequence_to_check = ["GH006", "Protected branch update failed for", "a/"]
+        if contains_sequence(error_msg, sequence_to_check):
+            error_msg = "Failed to update the org-policies due to branch protection rule"
+            writer.writerow({'Repository Name': repo_name, 'Error Message': f'stderr: {error_msg}'}, 'Timestamp': timestamp)
+        else:
+            writer.writerow({'Repository Name': repo_name, 'Error Message': f'stderr: {error_msg}'}, 'Timestamp': timestamp)
         csv_file.close()
