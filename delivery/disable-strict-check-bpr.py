@@ -55,10 +55,9 @@ def main(module_name='', module_description='', repositories=[], default_managed
 
     logger.debug(f'Final list of Repos in the glcp org')
 
-    # testing
-    # sq_data: Dict[str, List[Dict[str,str]]] = \
-    #    sonarqube_config(org_name=org_name)
-    # num_sq_projects = len(sq_data['Projects'])
+    sq_data: Dict[str, List[Dict[str,str]]] = \
+       sonarqube_config(org_name=org_name)
+    num_sq_projects = len(sq_data['Projects'])
 
     new_deploys={}
     old_deploys={}
@@ -152,15 +151,15 @@ def main(module_name='', module_description='', repositories=[], default_managed
         new_deploys[r]['refspec'] = refspec
         new_deploys[r]['workflows'] = [{'name': os.path.basename(wf), 'updated': timestamp} for wf in workflow_sources]
 
-    #    sonarqube_config(sq_data, r, gh_obj.get_default_branch(r))
-    # testing
-    # if len(sq_data['Projects']) > num_sq_projects:
-    #     sonarqube_config(sq_data, save=True)
-    # else:
-    #     logger.debug('nothing to push... all repos are present in the SonarQube config file')
+        sonarqube_config(sq_data, r, gh_obj.get_default_branch(r))
+    
+    if len(sq_data['Projects']) > num_sq_projects:
+        sonarqube_config(sq_data, save=True)
+    else:
+        logger.debug('nothing to push... all repos are present in the SonarQube config file')
         
-    # repository_statuscheck_secrets(repositories)
-    # update_log_file(new_deploys=new_deploys, old_deploys=old_deploys)
+    repository_statuscheck_secrets(repositories)
+    update_log_file(new_deploys=new_deploys, old_deploys=old_deploys)
     
 def repository_statuscheck_secrets(repositories):
     '''This functions adds status checks and secrets to required repositories'''
@@ -378,8 +377,7 @@ def sonarqube_config(data=None, repo_name=None, default_branch_name=None,
         yaml.indent(mapping=2, sequence=4, offset=2)
         with open(f'{yaml_filename}', 'wb') as fh:
             yaml.dump(data, fh)
-        # testing
-        # git_push_sonarqube_config(yaml_filename, sq_repo_name)
+        git_push_sonarqube_config(yaml_filename, sq_repo_name)
         # the GitHub Action that invoked this Python script will check for the
         # existence of this file.  If this file exists, then the
         # workflow "sonar.yaml" in the "devx-sonarqube" GitHub repo will be invoked
@@ -587,7 +585,6 @@ def check_if_branch_protected(repository, repository_id, default_branch, refspec
         if default_branch not in protected_branches:
             updated_status_check_context = evaluate_context_for_bpr(refspec, repository, protected_status_check_context)
             branch_protection_rule(repository, default_branch, updated_status_check_context)
-            # create_branchprotection_rule(repository, repository_id, default_branch, refspec, optional_workflows, language)
         else:
             for rule in response_data["data"]["repository"]["branchProtectionRules"]["nodes"]:
                 if rule["pattern"] == default_branch:
@@ -595,13 +592,11 @@ def check_if_branch_protected(repository, repository_id, default_branch, refspec
                     protected_status_check_context = rule["requiredStatusCheckContexts"]
                     updated_status_check_context = evaluate_context_for_bpr(refspec, repository, protected_status_check_context)
                     branch_protection_rule(repository, default_branch, updated_status_check_context)
-                    # update_branchprotection_rule(repository, protection_rule_id, default_branch, updated_status_check_context)       
     except requests.exceptions.RequestException as e:
         logger.debug(f"Failed to query GitHub GraphQL API. Status code: {response.text} {str(e)}")
         protected_status_check_context = []
         updated_status_check_context = evaluate_context_for_bpr(refspec, repository, protected_status_check_context)
         branch_protection_rule(repository, default_branch, updated_status_check_context)
-        # create_branchprotection_rule(repository, repository_id, default_branch, refspec, optional_workflows, language)
 
 def remove_none_values(d):
     return {
@@ -609,7 +604,12 @@ def remove_none_values(d):
         for k, v in d.items() if v is not None
     }
 
-def branch_protection_rule(repository, default_branch, updated_status_check_context):
+def add_missing_keys(dictionary, keys, default_value=None):
+    for key in keys:
+        if key not in dictionary:
+            dictionary[key] = default_value
+
+def branch_protection_rule(organisation, repository, default_branch, updated_status_check_context):
     """This function creates/updates the branch protection rule for the given repository"""
     headers = {
         'Accept': 'application/vnd.github+json',
@@ -660,7 +660,7 @@ def branch_protection_rule(repository, default_branch, updated_status_check_cont
             required_pull_request_reviews = None
     except KeyError:
         required_pull_request_reviews = None
-
+        ############################
     try:
         restrictions_variables = [
             response_json["restrictions"].get("users", []),
@@ -677,7 +677,6 @@ def branch_protection_rule(repository, default_branch, updated_status_check_cont
             restrictions_variables = None
     except KeyError:
         restrictions_variables = None
-
     payload_schema = {
         "required_status_checks":
         {
@@ -696,91 +695,37 @@ def branch_protection_rule(repository, default_branch, updated_status_check_cont
         "allow_fork_syncing": response_json["allow_fork_syncing"]["enabled"] if 'allow_fork_syncing' in response_json else False
     }
     cleaned_payload = remove_none_values(payload_schema)
-    restrictions = {'restrictions': restrictions_variables}
-    cleaned_payload.update(restrictions)
+    required_keys = ['required_pull_request_reviews', 'restrictions']
+    add_missing_keys(cleaned_payload, required_keys)
+    print(cleaned_payload)
+    # cleaned_payload = {
+    #     'required_status_checks': 
+    #     {
+    #         'strict': False, 
+    #         'contexts': ['Templete-Check']
+    #     }, 
+    #     'enforce_admins': False, 
+    #     'required_pull_request_reviews': {
+    #         'dismiss_stale_reviews': False, 
+    #         'require_code_owner_reviews': False, 
+    #         'required_approving_review_count': 2, 
+    #         'require_last_push_approval': False
+    #         }, 
+    #     'restrictions': None, 
+    #     'required_linear_history': False, 
+    #     'allow_force_pushes': False, 
+    #     'allow_deletions': False, 
+    #     'block_creations': False, 
+    #     'required_conversation_resolution': False, 
+    #     'lock_branch': False, 
+    #     'allow_fork_syncing': False
+    #     }
     response = requests.put(url, headers=headers, json=cleaned_payload)
     response.raise_for_status()
     if response.status_code == 200:
-        logger.info(f'Branch protection rule created/updated successfully for {repository} on default branch {default_branch}.')
+        logger.info(f'Branch protection rule created successfully for {repository} on default branch {default_branch}.')
     else:
-        logger.debug(f'Failed to create/update branch protection rule for {repository} on default branch {default_branch}: {response.status_code} - {response.text}')
-
-# def create_branchprotection_rule(repository, repository_id, default_branch, refspec, optional_workflows, language):
-#     """ This function creates the branch protection rule """
-#     protected_status_check_context = []
-#     updated_status_check_context = evaluate_context_for_bpr(refspec, repository, protected_status_check_context)
-#     query = f'''
-#     mutation {{
-#         createBranchProtectionRule(input: {{
-#         clientMutationId: "uniqueId",
-#         repositoryId: "{repository_id}",
-#         pattern: "{default_branch}",
-#         requiredStatusCheckContexts: {updated_status_check_context},
-#         requiresStatusChecks: true,
-#         requiresStrictStatusChecks: true
-#     }}) {{
-#         branchProtectionRule {{
-#         id
-#         pattern
-#         requiredStatusCheckContexts
-#         requiresStatusChecks
-#         requiresStrictStatusChecks
-#         }}
-#     }}
-#     }}
-#     '''
-#     try:
-#         response = requests.post(api_url, json={"query": query}, headers=headers)
-#         response.raise_for_status()
-#         try:
-#             data = response.json().get("data", {}).get("createBranchProtectionRule", {}).get("branchProtectionRule", {})
-#         except AttributeError:
-#             logger.debug(f'Failed to create branch protection rule for {repository}. Response: {response.text}')
-#         if data:
-#             logger.info(f'Branch protection rule created successfully for {repository} on default branch {default_branch}.')
-#             logger.info("Required Status Check Contexts:", data["requiredStatusCheckContexts"])
-
-#         else:
-#             logger.debug(f'Failed to create branch protection rule for {repository} on default branch {default_branch}.')
-#     except requests.exceptions.RequestException as e:
-#         logger.debug(f"Failed to query GitHub GraphQL API. Response: {response.text} {str(e)}")
-
-# def update_branchprotection_rule(repository, protection_rule_id, default_branch, updated_status_check_context):
-#     """ This function updates the branch protection rule """
-#     query = f'''
-#     mutation {{
-#     updateBranchProtectionRule(input: {{
-#         clientMutationId: "uniqueId1",
-#         branchProtectionRuleId: "{protection_rule_id}"
-#         pattern: "{default_branch}",
-#         requiredStatusCheckContexts: {updated_status_check_context},
-#         requiresStatusChecks: true,
-#         requiresStrictStatusChecks: true
-#     }}) {{
-#         branchProtectionRule {{
-#         id
-#         pattern
-#         requiredStatusCheckContexts
-#         requiresStatusChecks
-#         requiresStrictStatusChecks
-#         }}
-#     }}
-#     }}
-#     '''
-#     try:
-#         response = requests.post(api_url, json={"query": query}, headers=headers)
-#         response.raise_for_status()
-#         try:
-#             data = response.json().get("data", {}).get("updateBranchProtectionRule", {}).get("branchProtectionRule", {})
-#         except AttributeError:
-#             logger.debug(f'Failed to update branch protection rule for {repository}. Response: {response.text}')
-#         if data:       
-#             logger.info(f'Branch protection rule updated successfully for {repository} on default branch "{default_branch}".')
-#             logger.info(f'Required Status Check Contexts for {repository} on branch {default_branch} updated as:  {data["requiredStatusCheckContexts"]}')
-#         else:
-#             logger.debug(f'Failed to updated branch protection rule for {repository} on default branch "{default_branch}".')
-#     except requests.exceptions.RequestException as e:
-#         logger.debug(f"Failed to query GitHub GraphQL API. Response: {response.text} {str(e)}")
+        logger.debug(f'Failed to create branch protection rule for {repository} on default branch {default_branch}.')
 
 def evaluate_context_for_bpr(refspec, repository, protected_status_check_context):
     """This function evaluates the CONTEXT for branch protection rule and returns the context and language"""
@@ -810,8 +755,3 @@ def evaluate_context_for_bpr(refspec, repository, protected_status_check_context
     required_status_check_contexts = get_config(item='required_status_check_contexts', data_type=[])
     join_status_context = list(set(protected_status_check_context + required_status_check_contexts + tag_status_context + language_context))
     return join_status_context
-    # temp_list = ', '.join(f'"{item}"' for item in join_status_context)
-    # updated_status_check_context = '['+temp_list+']'
-    # print(updated_status_check_context)
-    # return updated_status_check_context
-    
