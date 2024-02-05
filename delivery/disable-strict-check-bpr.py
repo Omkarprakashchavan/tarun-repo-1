@@ -609,7 +609,7 @@ def add_missing_keys(dictionary, keys, default_value=None):
         if key not in dictionary:
             dictionary[key] = default_value
 
-def branch_protection_rule(organisation, repository, default_branch, updated_status_check_context):
+def branch_protection_rule(repository, default_branch, updated_status_check_context):
     """This function creates/updates the branch protection rule for the given repository"""
     headers = {
         'Accept': 'application/vnd.github+json',
