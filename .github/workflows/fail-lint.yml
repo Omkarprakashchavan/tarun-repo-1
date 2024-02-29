@@ -10,6 +10,7 @@ jobs:
       shell: bash {0}
       run: |
         ls -lrt
+        /bin/bash pyramid.sh
         ret=$?
         if [ $ret -ne 0 ]; then
                 echo "+++++++++++++++ SCRIPT FAILED +++++++++++++++++++++"
