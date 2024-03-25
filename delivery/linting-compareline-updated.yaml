@@ -8,6 +8,18 @@ file_lines_dict = {}
 words = ['^diff', '^\+\s+', '^\-\s+', '^\+\d+', '^\-\d+', '^\-+', '^\++']
 dictname = ''
 
+f = open('git-diff.txt', 'r')
+print('------------------- git-diff.txt ------------------- ')
+file_contents = f.read()
+print (file_contents)
+f.close()
+
+h = open('lint-output.log', 'r')
+print('------------------- lint-output.log ------------------- ')
+h_file_contents = h.read()
+print (h_file_contents)
+h.close()
+
 def line_starts_with_any_word(line, words):
     return any(re.match(word, line) for word in words)
 
@@ -27,6 +39,10 @@ with open(diff_file, 'r', encoding="utf8") as file:
 
 error_dict = {key: [] for key in file_lines_dict}
 unique_file_lines_dict = {key: list(set(value)) for key, value in file_lines_dict.items()}
+print('------------------- error_dict ------------------- ')
+print(error_dict)
+print('------------------- unique_file_lines_dict ------------------- ')
+print(unique_file_lines_dict)
 
 with open(lint_logfile, 'r', encoding="utf8") as file:
     for line in file:
@@ -47,7 +63,8 @@ for key in error_dict.keys():
         if common_values:
             output_dict[key] = common_values
             print(f"'{key} having linting error on line': {common_values}")
-
+print('------------------- output_dict ------------------- ')
+print(output_dict)
 any_non_empty = any(errors for errors in output_dict.values())
 if any_non_empty:
     sys.exit(1)
