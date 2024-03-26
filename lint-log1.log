@@ -1,0 +1,753 @@
+--------------------------------------------------------------------------------
+68
+
+69
+                              /@@#///////@@/(@//@%/(@.@(       @@
+70
+                          @@//////////////////////////////#*  @@@
+71
+                        @////@//(///////////@@@@@///@//@/@**//@@(
+72
+                      @///////@///////////////@@@@    (           @,
+73
+                     @/(&/@////////////////////                     @
+74
+                    @////////////////////////@@                      @
+75
+                  @%////////(//////////%/////&@            @@       *,@           ______________
+76
+             @@@@@/@/#/////(&//////////////////                       .@         /              \
+77
+        *@@@@@.    .%///(//@//////////////////&.   .@@,                 @%      / Don't mind me  \
+78
+      @@%           .&@&&/@.@//&/////(//////////    @@@@@@@@@         *** &@    / I'm just looking \
+79
+    @@%               @@@@@   @&/////////////////#   @/       V  @@/ ,@@@ @   <  for some trash*** |
+80
+@@@%                   @@@@        .%@@@@//////#@ @   @@         @     .,.     \__________________/
+81
+                                          @@@/@(  (@@@@% @/\      %
+82
+                                           @@@@(    .     .@@/\   #
+83
+                                             @                  %@%
+84
+
+85
+--------------------------------------------------------------------------------
+86
+2024-03-25 18:03:36 [INFO]   ---------------------------------------------
+87
+2024-03-25 18:03:36 [INFO]   --- GitHub Actions Multi Language Linter ----
+88
+2024-03-25 18:03:36 [INFO]    - Image Creation Date:[2023-12-02T08:58:52Z]
+89
+2024-03-25 18:03:36 [INFO]    - Image Revision:[a8150b40c89574adb5f68bf9502b890a236a06b3]
+90
+2024-03-25 18:03:36 [INFO]    - Image Version:[a8150b40c89574adb5f68bf9502b890a236a06b3]
+91
+2024-03-25 18:03:36 [INFO]   ---------------------------------------------
+92
+2024-03-25 18:03:36 [INFO]   ---------------------------------------------
+93
+2024-03-25 18:03:36 [INFO]   The Super-Linter source code can be found at:
+94
+2024-03-25 18:03:36 [INFO]    - https://github.com/super-linter/super-linter
+95
+2024-03-25 18:03:36 [INFO]   ---------------------------------------------
+96
+Removing Languages from LANGUAGE_ARRAY for slim image***
+97
+found item:[ARM], removing Language***
+98
+found item:[CSHARP], removing Language***
+99
+found item:[ENV], removing Language***
+100
+found item:[POWERSHELL], removing Language***
+101
+found item:[RUST_2015], removing Language***
+102
+found item:[RUST_2018], removing Language***
+103
+found item:[RUST_2021], removing Language***
+104
+found item:[RUST_CLIPPY], removing Language***
+105
+Removing Linters from LINTER_NAMES_ARRAY for slim image***
+106
+found item:[ARM], removing linter***
+107
+found item:[CSHARP], removing linter***
+108
+found item:[ENV], removing linter***
+109
+found item:[POWERSHELL], removing linter***
+110
+found item:[RUST_2015], removing linter***
+111
+found item:[RUST_2018], removing linter***
+112
+found item:[RUST_2021], removing linter***
+113
+found item:[RUST_CLIPPY], removing linter***
+114
+2024-03-25 18:03:36 [INFO]   --------------------------------------------
+115
+2024-03-25 18:03:36 [INFO]   Gathering GitHub information***
+116
+2024-03-25 18:03:36 [INFO]   Successfully found:[GITHUB_SHA], value:[c49ed803e9af1df27d8d3b597128d2864386527e]
+117
+2024-03-25 18:03:36 [INFO]   Successfully found:[GITHUB_WORKSPACE], value:[/github/workspace]
+118
+2024-03-25 18:03:36 [INFO]   Successfully found:[GITHUB_EVENT_PATH], value:[/github/workflow/event.json]
+119
+2024-03-25 18:03:36 [INFO]   Successfully found:[GITHUB_ORG], value:[glcp]
+120
+2024-03-25 18:03:36 [INFO]   Successfully found:[GITHUB_REPO], value:[account-management]
+121
+2024-03-25 18:03:36 [INFO]   Successfully found:[GITHUB_TOKEN]
+122
+2024-03-25 18:03:36 [INFO]   Successfully found:[GITHUB_REPOSITORY], value:[glcp/account-management]
+123
+2024-03-25 18:03:36 [INFO]   Successfully found:[GITHUB_RUN_ID], value:[8424754049]
+124
+2024-03-25 18:03:36 [INFO]   --------------------------------------------
+125
+2024-03-25 18:03:36 [INFO]   Gathering user validation information***
+126
+2024-03-25 18:03:36 [INFO]   - Only validating [new], or [edited] files in code base***
+127
+You are not currently on a branch.
+128
+Please specify which branch you want to merge with.
+129
+See git-pull(1) for details.
+130
+
+131
+    git pull <remote> <branch>
+132
+
+133
+2024-03-25 18:03:41 [INFO]   ---------------------------------
+134
+2024-03-25 18:03:41 [INFO]   ------ File list to check: ------
+135
+2024-03-25 18:03:41 [INFO]   ---------------------------------
+136
+2024-03-25 18:03:41 [INFO]   ----------------------------------------------
+137
+2024-03-25 18:03:41 [INFO]   Successfully gathered list of files***
+138
+2024-03-25 18:03:42 [INFO]   
+139
+2024-03-25 18:03:42 [INFO]   ----------------------------------------------
+140
+2024-03-25 18:03:42 [INFO]   ----------------------------------------------
+141
+2024-03-25 18:03:42 [INFO]   Linting [GITHUB_ACTIONS] files***
+142
+2024-03-25 18:03:42 [INFO]   ----------------------------------------------
+143
+2024-03-25 18:03:42 [INFO]   ----------------------------------------------
+144
+2024-03-25 18:03:42 [INFO]   ---------------------------
+145
+2024-03-25 18:03:42 [INFO]   File:[/github/workspace/.github/workflows/ci_merge.yaml]
+146
+2024-03-25 18:03:42 [INFO]    - File:[ci_merge.yaml] was linted with [actionlint] successfully
+147
+2024-03-25 18:03:42 [INFO]   ---------------------------
+148
+2024-03-25 18:03:42 [INFO]   File:[/github/workspace/.github/workflows/lint.yaml]
+149
+2024-03-25 18:03:42 [INFO]    - File:[lint.yaml] was linted with [actionlint] successfully
+150
+2024-03-25 18:03:42 [INFO]   ---------------------------
+151
+2024-03-25 18:03:42 [INFO]   File:[/github/workspace/.github/workflows/managed-ci-pr-***.yaml]
+152
+2024-03-25 18:03:42 [INFO]    - File:[managed-ci-pr-***.yaml] was linted with [actionlint] successfully
+153
+2024-03-25 18:03:42 [INFO]   ---------------------------
+154
+2024-03-25 18:03:42 [INFO]   File:[/github/workspace/.github/workflows/managed-ci-pr.yaml]
+155
+2024-03-25 18:03:42 [INFO]    - File:[managed-ci-pr.yaml] was linted with [actionlint] successfully
+156
+2024-03-25 18:03:42 [INFO]   
+157
+2024-03-25 18:03:42 [INFO]   ----------------------------------------------
+158
+2024-03-25 18:03:42 [INFO]   ----------------------------------------------
+159
+2024-03-25 18:03:42 [INFO]   Linting [GITLEAKS] files***
+160
+2024-03-25 18:03:42 [INFO]   ----------------------------------------------
+161
+2024-03-25 18:03:42 [INFO]   ----------------------------------------------
+162
+2024-03-25 18:03:42 [INFO]   ---------------------------
+163
+2024-03-25 18:03:42 [INFO]   File:[/github/workspace/.github/workflows/ci_merge.yaml]
+164
+2024-03-25 18:03:42 [INFO]    - File:[ci_merge.yaml] was linted with [gitleaks] successfully
+165
+2024-03-25 18:03:42 [INFO]      - Command output:
+166
+------
+167
+6:03PM INF scan completed in 1.65ms
+168
+6:03PM INF no leaks found
+169
+------
+170
+2024-03-25 18:03:42 [INFO]   ---------------------------
+171
+2024-03-25 18:03:42 [INFO]   File:[/github/workspace/.github/workflows/lint.yaml]
+172
+2024-03-25 18:03:42 [INFO]    - File:[lint.yaml] was linted with [gitleaks] successfully
+173
+2024-03-25 18:03:42 [INFO]      - Command output:
+174
+------
+175
+6:03PM INF scan completed in 2.17ms
+176
+6:03PM INF no leaks found
+177
+------
+178
+2024-03-25 18:03:42 [INFO]   ---------------------------
+179
+2024-03-25 18:03:42 [INFO]   File:[/github/workspace/.github/workflows/managed-ci-pr-***.yaml]
+180
+2024-03-25 18:03:42 [INFO]    - File:[managed-ci-pr-***.yaml] was linted with [gitleaks] successfully
+181
+2024-03-25 18:03:42 [INFO]      - Command output:
+182
+------
+183
+6:03PM INF scan completed in 2.03ms
+184
+6:03PM INF no leaks found
+185
+------
+186
+2024-03-25 18:03:42 [INFO]   ---------------------------
+187
+2024-03-25 18:03:42 [INFO]   File:[/github/workspace/.github/workflows/managed-ci-pr.yaml]
+188
+2024-03-25 18:03:42 [INFO]    - File:[managed-ci-pr.yaml] was linted with [gitleaks] successfully
+189
+2024-03-25 18:03:42 [INFO]      - Command output:
+190
+------
+191
+6:03PM INF scan completed in 2.69ms
+192
+6:03PM INF no leaks found
+193
+------
+194
+2024-03-25 18:03:42 [INFO]   ---------------------------
+195
+2024-03-25 18:03:42 [INFO]   File:[/github/workspace/README.md]
+196
+2024-03-25 18:03:43 [INFO]    - File:[README.md] was linted with [gitleaks] successfully
+197
+2024-03-25 18:03:43 [INFO]      - Command output:
+198
+------
+199
+6:03PM INF scan completed in 1.79ms
+200
+6:03PM INF no leaks found
+201
+------
+202
+2024-03-25 18:03:43 [INFO]   ---------------------------
+203
+2024-03-25 18:03:43 [INFO]   File:[/github/workspace/app/api/constants.py]
+204
+2024-03-25 18:03:43 [INFO]    - File:[constants.py] was linted with [gitleaks] successfully
+205
+2024-03-25 18:03:43 [INFO]      - Command output:
+206
+------
+207
+6:03PM INF scan completed in 1.99ms
+208
+6:03PM INF no leaks found
+209
+------
+210
+2024-03-25 18:03:43 [INFO]   
+211
+2024-03-25 18:03:43 [INFO]   ----------------------------------------------
+212
+2024-03-25 18:03:43 [INFO]   ----------------------------------------------
+213
+2024-03-25 18:03:43 [INFO]   Linting [JSCPD] files***
+214
+2024-03-25 18:03:43 [INFO]   ----------------------------------------------
+215
+2024-03-25 18:03:43 [INFO]   ----------------------------------------------
+216
+2024-03-25 18:03:43 [INFO]   ---------------------------
+217
+2024-03-25 18:03:43 [INFO]   File:[/github/workspace/.github/workflows/ci_merge.yaml]
+218
+2024-03-25 18:03:44 [INFO]    - File:[ci_merge.yaml] was linted with [jscpd] successfully
+219
+2024-03-25 18:03:44 [INFO]      - Command output:
+220
+------
+221
+Found 0 clones.
+222
+Detection time:: 10.839ms
+223
+------
+224
+2024-03-25 18:03:44 [INFO]   ---------------------------
+225
+2024-03-25 18:03:44 [INFO]   File:[/github/workspace/.github/workflows/lint.yaml]
+226
+2024-03-25 18:03:44 [INFO]    - File:[lint.yaml] was linted with [jscpd] successfully
+227
+2024-03-25 18:03:44 [INFO]      - Command output:
+228
+------
+229
+Found 0 clones.
+230
+Detection time:: 12.301ms
+231
+------
+232
+2024-03-25 18:03:44 [INFO]   ---------------------------
+233
+2024-03-25 18:03:44 [INFO]   File:[/github/workspace/.github/workflows/managed-ci-pr-***.yaml]
+234
+2024-03-25 18:03:45 [INFO]    - File:[managed-ci-pr-***.yaml] was linted with [jscpd] successfully
+235
+2024-03-25 18:03:45 [INFO]      - Command output:
+236
+------
+237
+Found 0 clones.
+238
+Detection time:: 9.708ms
+239
+------
+240
+2024-03-25 18:03:45 [INFO]   ---------------------------
+241
+2024-03-25 18:03:45 [INFO]   File:[/github/workspace/.github/workflows/managed-ci-pr.yaml]
+242
+2024-03-25 18:03:45 [INFO]    - File:[managed-ci-pr.yaml] was linted with [jscpd] successfully
+243
+2024-03-25 18:03:45 [INFO]      - Command output:
+244
+------
+245
+Found 0 clones.
+246
+Detection time:: 17.652ms
+247
+------
+248
+2024-03-25 18:03:46 [INFO]   ---------------------------
+249
+2024-03-25 18:03:46 [INFO]   File:[/github/workspace/README.md]
+250
+2024-03-25 18:03:46 [INFO]    - File:[README.md] was linted with [jscpd] successfully
+251
+2024-03-25 18:03:46 [INFO]      - Command output:
+252
+------
+253
+Found 0 clones.
+254
+Detection time:: 8.08ms
+255
+------
+256
+2024-03-25 18:03:46 [INFO]   ---------------------------
+257
+2024-03-25 18:03:46 [INFO]   File:[/github/workspace/app/api/constants.py]
+258
+2024-03-25 18:03:47 [INFO]    - File:[constants.py] was linted with [jscpd] successfully
+259
+2024-03-25 18:03:47 [INFO]      - Command output:
+260
+------
+261
+Found 0 clones.
+262
+Detection time:: 10.591ms
+263
+------
+264
+2024-03-25 18:03:47 [INFO]   
+265
+2024-03-25 18:03:47 [INFO]   ----------------------------------------------
+266
+2024-03-25 18:03:47 [INFO]   ----------------------------------------------
+267
+2024-03-25 18:03:47 [INFO]   Linting [MARKDOWN] files***
+268
+2024-03-25 18:03:47 [INFO]   ----------------------------------------------
+269
+2024-03-25 18:03:47 [INFO]   ----------------------------------------------
+270
+2024-03-25 18:03:47 [INFO]   ---------------------------
+271
+2024-03-25 18:03:47 [INFO]   File:[/github/workspace/README.md]
+272
+2024-03-25 18:03:47 [INFO]    - File:[README.md] was linted with [markdownlint] successfully
+273
+2024-03-25 18:03:47 [INFO]   
+274
+2024-03-25 18:03:47 [INFO]   ----------------------------------------------
+275
+2024-03-25 18:03:47 [INFO]   ----------------------------------------------
+276
+2024-03-25 18:03:47 [INFO]   Linting [NATURAL_LANGUAGE] files***
+277
+2024-03-25 18:03:47 [INFO]   ----------------------------------------------
+278
+2024-03-25 18:03:47 [INFO]   ----------------------------------------------
+279
+2024-03-25 18:03:47 [INFO]   ---------------------------
+280
+2024-03-25 18:03:47 [INFO]   File:[/github/workspace/.github/workflows/ci_merge.yaml]
+281
+2024-03-25 18:03:48 [INFO]    - File:[ci_merge.yaml] was linted with [textlint] successfully
+282
+2024-03-25 18:03:48 [INFO]   ---------------------------
+283
+2024-03-25 18:03:48 [INFO]   File:[/github/workspace/.github/workflows/lint.yaml]
+284
+2024-03-25 18:03:48 [INFO]    - File:[lint.yaml] was linted with [textlint] successfully
+285
+2024-03-25 18:03:48 [INFO]   ---------------------------
+286
+2024-03-25 18:03:48 [INFO]   File:[/github/workspace/.github/workflows/managed-ci-pr-***.yaml]
+287
+2024-03-25 18:03:49 [INFO]    - File:[managed-ci-pr-***.yaml] was linted with [textlint] successfully
+288
+2024-03-25 18:03:49 [INFO]   ---------------------------
+289
+2024-03-25 18:03:49 [INFO]   File:[/github/workspace/.github/workflows/managed-ci-pr.yaml]
+290
+2024-03-25 18:03:49 [INFO]    - File:[managed-ci-pr.yaml] was linted with [textlint] successfully
+291
+2024-03-25 18:03:49 [INFO]   ---------------------------
+292
+2024-03-25 18:03:49 [INFO]   File:[/github/workspace/README.md]
+293
+2024-03-25 18:03:50 [INFO]    - File:[README.md] was linted with [textlint] successfully
+294
+2024-03-25 18:03:50 [INFO]   ---------------------------
+295
+2024-03-25 18:03:50 [INFO]   File:[/github/workspace/app/api/constants.py]
+296
+2024-03-25 18:03:50 [INFO]    - File:[constants.py] was linted with [textlint] successfully
+297
+2024-03-25 18:03:50 [INFO]   
+298
+2024-03-25 18:03:50 [INFO]   ----------------------------------------------
+299
+2024-03-25 18:03:50 [INFO]   ----------------------------------------------
+300
+2024-03-25 18:03:50 [INFO]   Linting [PYTHON_BLACK] files***
+301
+2024-03-25 18:03:50 [INFO]   ----------------------------------------------
+302
+2024-03-25 18:03:50 [INFO]   ----------------------------------------------
+303
+2024-03-25 18:03:50 [INFO]   ---------------------------
+304
+2024-03-25 18:03:50 [INFO]   File:[/github/workspace/app/api/constants.py]
+305
+2024-03-25 18:03:50 [ERROR]   Found errors in [black] linter!
+306
+2024-03-25 18:03:50 [ERROR]   Error code: 123. Command output:
+307
+------
+308
+error: cannot format /github/workspace/app/api/constants.py: Cannot parse: 4:5: test bug1
+309
+
+310
+Oh no! 💥 💔 💥
+311
+1 file would fail to reformat.
+312
+------
+313
+2024-03-25 18:03:50 [INFO]   
+314
+2024-03-25 18:03:50 [INFO]   ----------------------------------------------
+315
+2024-03-25 18:03:51 [INFO]   ----------------------------------------------
+316
+2024-03-25 18:03:51 [INFO]   Linting [PYTHON_PYLINT] files***
+317
+2024-03-25 18:03:51 [INFO]   ----------------------------------------------
+318
+2024-03-25 18:03:51 [INFO]   ----------------------------------------------
+319
+2024-03-25 18:03:51 [INFO]   ---------------------------
+320
+2024-03-25 18:03:51 [INFO]   File:[/github/workspace/app/api/constants.py]
+321
+2024-03-25 18:03:51 [ERROR]   Found errors in [pylint] linter!
+322
+2024-03-25 18:03:51 [ERROR]   Error code: 2. Command output:
+323
+------
+324
+pylint: Command line or configuration file:1: UserWarning: 'Exception' is not a proper value for the 'overgeneral-exceptions' option. Use fully qualified name (maybe 'builtins.Exception' ?) instead. This will cease to be checked at runtime in 3.1.0.
+325
+************* Module workspace.app.api.constants
+326
+app/api/constants.py:6:33: E0001: Parsing failed: 'unterminated string literal (detected at line 6) (<unknown>, line 6)' (syntax-error)
+327
+------
+328
+2024-03-25 18:03:51 [INFO]   
+329
+2024-03-25 18:03:51 [INFO]   ----------------------------------------------
+330
+2024-03-25 18:03:51 [INFO]   ----------------------------------------------
+331
+2024-03-25 18:03:51 [INFO]   Linting [PYTHON_FLAKE8] files***
+332
+2024-03-25 18:03:51 [INFO]   ----------------------------------------------
+333
+2024-03-25 18:03:51 [INFO]   ----------------------------------------------
+334
+2024-03-25 18:03:51 [INFO]   ---------------------------
+335
+2024-03-25 18:03:51 [INFO]   File:[/github/workspace/app/api/constants.py]
+336
+2024-03-25 18:03:51 [ERROR]   Found errors in [flake8] linter!
+337
+2024-03-25 18:03:51 [ERROR]   Error code: 1. Command output:
+338
+------
+339
+/github/workspace/app/api/constants.py:6:34: E999 SyntaxError: unterminated string literal (detected at line 6)
+340
+------
+341
+2024-03-25 18:03:51 [INFO]   
+342
+2024-03-25 18:03:51 [INFO]   ----------------------------------------------
+343
+2024-03-25 18:03:51 [INFO]   ----------------------------------------------
+344
+2024-03-25 18:03:51 [INFO]   Linting [PYTHON_ISORT] files***
+345
+2024-03-25 18:03:51 [INFO]   ----------------------------------------------
+346
+2024-03-25 18:03:51 [INFO]   ----------------------------------------------
+347
+2024-03-25 18:03:51 [INFO]   ---------------------------
+348
+2024-03-25 18:03:51 [INFO]   File:[/github/workspace/app/api/constants.py]
+349
+2024-03-25 18:03:51 [INFO]    - File:[constants.py] was linted with [isort] successfully
+350
+2024-03-25 18:03:52 [INFO]   
+351
+2024-03-25 18:03:52 [INFO]   ----------------------------------------------
+352
+2024-03-25 18:03:52 [INFO]   ----------------------------------------------
+353
+2024-03-25 18:03:52 [INFO]   Linting [PYTHON_MYPY] files***
+354
+2024-03-25 18:03:52 [INFO]   ----------------------------------------------
+355
+2024-03-25 18:03:52 [INFO]   ----------------------------------------------
+356
+2024-03-25 18:03:52 [INFO]   ---------------------------
+357
+2024-03-25 18:03:52 [INFO]   File:[/github/workspace/app/api/constants.py]
+358
+2024-03-25 18:03:52 [ERROR]   Found errors in [mypy] linter!
+359
+2024-03-25 18:03:52 [ERROR]   Error code: 2. Command output:
+360
+------
+361
+error: --install-types failed (no mypy cache directory)
+362
+------
+363
+2024-03-25 18:03:53 [INFO]   
+364
+2024-03-25 18:03:53 [INFO]   ----------------------------------------------
+365
+2024-03-25 18:03:53 [INFO]   ----------------------------------------------
+366
+2024-03-25 18:03:53 [INFO]   Linting [YAML] files***
+367
+2024-03-25 18:03:53 [INFO]   ----------------------------------------------
+368
+2024-03-25 18:03:53 [INFO]   ----------------------------------------------
+369
+2024-03-25 18:03:53 [INFO]   ---------------------------
+370
+2024-03-25 18:03:53 [INFO]   File:[/github/workspace/.github/workflows/ci_merge.yaml]
+371
+2024-03-25 18:03:53 [INFO]    - File:[ci_merge.yaml] was linted with [yamllint] successfully
+372
+2024-03-25 18:03:53 [INFO]      - Command output:
+373
+------
+374
+Warning: orkspace/.github/workflows/ci_merge.yaml:1:1: [warning] missing document start "---" (document-start)
+375
+Warning: orkspace/.github/workflows/ci_merge.yaml:6:3: [warning] wrong indentation: expected 1 but found 2 (indentation)
+376
+Warning: orkspace/.github/workflows/ci_merge.yaml:9:3: [warning] wrong indentation: expected 1 but found 2 (indentation)
+377
+Warning: orkspace/.github/workflows/ci_merge.yaml:10:5: [warning] wrong indentation: expected 3 but found 4 (indentation)
+378
+Warning: orkspace/.github/workflows/ci_merge.yaml:12:7: [warning] wrong indentation: expected 5 but found 6 (indentation)
+379
+Warning: orkspace/.github/workflows/ci_merge.yaml:15:11: [warning] wrong indentation: expected 9 but found 10 (indentation)
+380
+Warning: orkspace/.github/workflows/ci_merge.yaml:20:11: [warning] wrong indentation: expected 9 but found 10 (indentation)
+381
+------
+382
+2024-03-25 18:03:53 [INFO]   ---------------------------
+383
+2024-03-25 18:03:53 [INFO]   File:[/github/workspace/.github/workflows/lint.yaml]
+384
+2024-03-25 18:03:53 [INFO]    - File:[lint.yaml] was linted with [yamllint] successfully
+385
+2024-03-25 18:03:53 [INFO]      - Command output:
+386
+------
+387
+Warning: orkspace/.github/workflows/lint.yaml:1:1: [warning] too many blank lines (1 > 0) (empty-lines)
+388
+Warning: orkspace/.github/workflows/lint.yaml:2:1: [warning] missing document start "---" (document-start)
+389
+Warning: orkspace/.github/workflows/lint.yaml:5:6: [warning] wrong indentation: expected 6 but found 5 (indentation)
+390
+Warning: orkspace/.github/workflows/lint.yaml:9:3: [warning] wrong indentation: expected 3 but found 2 (indentation)
+391
+Warning: orkspace/.github/workflows/lint.yaml:12:3: [warning] wrong indentation: expected 3 but found 2 (indentation)
+392
+Warning: orkspace/.github/workflows/lint.yaml:13:5: [warning] wrong indentation: expected 5 but found 4 (indentation)
+393
+Warning: orkspace/.github/workflows/lint.yaml:15:7: [warning] wrong indentation: expected 7 but found 6 (indentation)
+394
+Warning: orkspace/.github/workflows/lint.yaml:21:10: [warning] wrong indentation: expected 11 but found 9 (indentation)
+395
+Warning: orkspace/.github/workflows/lint.yaml:23:81: [warning] line too long (81 > 80 characters) (line-length)
+396
+Warning: orkspace/.github/workflows/lint.yaml:29:11: [warning] wrong indentation: expected 11 but found 10 (indentation)
+397
+------
+398
+2024-03-25 18:03:53 [INFO]   ---------------------------
+399
+2024-03-25 18:03:53 [INFO]   File:[/github/workspace/.github/workflows/managed-ci-pr-***.yaml]
+400
+2024-03-25 18:03:53 [INFO]    - File:[managed-ci-pr-***.yaml] was linted with [yamllint] successfully
+401
+2024-03-25 18:03:53 [INFO]      - Command output:
+402
+------
+403
+Warning: orkspace/.github/workflows/managed-ci-pr-***.yaml:1:1: [warning] missing document start "---" (document-start)
+404
+------
+405
+2024-03-25 18:03:53 [INFO]   ---------------------------
+406
+2024-03-25 18:03:53 [INFO]   File:[/github/workspace/.github/workflows/managed-ci-pr.yaml]
+407
+2024-03-25 18:03:53 [INFO]    - File:[managed-ci-pr.yaml] was linted with [yamllint] successfully
+408
+2024-03-25 18:03:53 [INFO]      - Command output:
+409
+------
+410
+Warning: orkspace/.github/workflows/managed-ci-pr.yaml:1:1: [warning] missing document start "---" (document-start)
+411
+------
+412
+2024-03-25 18:03:53 [INFO]   ----------------------------------------------
+413
+2024-03-25 18:03:53 [INFO]   ----------------------------------------------
+414
+2024-03-25 18:03:53 [INFO]   The script has completed
+415
+2024-03-25 18:03:53 [INFO]   ----------------------------------------------
+416
+2024-03-25 18:03:53 [INFO]   ----------------------------------------------
+417
+2024-03-25 18:03:53 [INFO]   ERROR! Failed to call GitHub Status API!
+418
+2024-03-25 18:03:53 [INFO]   ERROR:[curl: (22) The requested URL returned error: 403]
+419
+2024-03-25 18:03:54 [INFO]   ERROR! Failed to call GitHub Status API!
+420
+2024-03-25 18:03:54 [INFO]   ERROR:[curl: (22) The requested URL returned error: 403]
+421
+2024-03-25 18:03:54 [INFO]   ERROR! Failed to call GitHub Status API!
+422
+2024-03-25 18:03:54 [INFO]   ERROR:[curl: (22) The requested URL returned error: 403]
+423
+2024-03-25 18:03:54 [INFO]   ERROR! Failed to call GitHub Status API!
+424
+2024-03-25 18:03:54 [INFO]   ERROR:[curl: (22) The requested URL returned error: 403]
+425
+2024-03-25 18:03:54 [INFO]   ERROR! Failed to call GitHub Status API!
+426
+2024-03-25 18:03:54 [INFO]   ERROR:[curl: (22) The requested URL returned error: 403]
+427
+2024-03-25 18:03:54 [ERROR]   ERRORS FOUND in PYTHON_BLACK:[1]
+428
+2024-03-25 18:03:54 [INFO]   ERROR! Failed to call GitHub Status API!
+429
+2024-03-25 18:03:54 [INFO]   ERROR:[curl: (22) The requested URL returned error: 403]
+430
+2024-03-25 18:03:54 [ERROR]   ERRORS FOUND in PYTHON_PYLINT:[1]
+431
+2024-03-25 18:03:54 [INFO]   ERROR! Failed to call GitHub Status API!
+432
+2024-03-25 18:03:54 [INFO]   ERROR:[curl: (22) The requested URL returned error: 403]
+433
+2024-03-25 18:03:55 [ERROR]   ERRORS FOUND in PYTHON_FLAKE8:[1]
+434
+2024-03-25 18:03:55 [INFO]   ERROR! Failed to call GitHub Status API!
+435
+2024-03-25 18:03:55 [INFO]   ERROR:[curl: (22) The requested URL returned error: 403]
+436
+2024-03-25 18:03:56 [INFO]   ERROR! Failed to call GitHub Status API!
+437
+2024-03-25 18:03:56 [INFO]   ERROR:[curl: (22) The requested URL returned error: 403]
+438
+2024-03-25 18:03:56 [ERROR]   ERRORS FOUND in PYTHON_MYPY:[1]
+439
+2024-03-25 18:03:56 [INFO]   ERROR! Failed to call GitHub Status API!
+440
+2024-03-25 18:03:56 [INFO]   ERROR:[curl: (22) The requested URL returned error: 403]
+441
+2024-03-25 18:03:56 [INFO]   ERROR! Failed to call GitHub Status API!
+442
+2024-03-25 18:03:56 [INFO]   ERROR:[curl: (22) The requested URL returned error: 403]
+443
+2024-03-25 18:03:56 [FATAL]   Exiting with errors found!
