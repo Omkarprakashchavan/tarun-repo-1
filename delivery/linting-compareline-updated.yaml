@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import re
 import sys
 
@@ -7,18 +6,6 @@ lint_logfile = 'super-linter.log'
 file_lines_dict = {}
 words = ['^diff', '^\+\s+', '^\-\s+', '^\+\d+', '^\-\d+', '^\-+', '^\++']
 dictname = ''
-
-f = open('git-diff.txt', 'r')
-print('------------------- git-diff.txt ------------------- ')
-file_contents = f.read()
-print (file_contents)
-f.close()
-
-h = open('lint-output.log', 'r')
-print('------------------- lint-output.log ------------------- ')
-h_file_contents = h.read()
-print (h_file_contents)
-h.close()
 
 def line_starts_with_any_word(line, words):
     return any(re.match(word, line) for word in words)
@@ -39,35 +26,34 @@ with open(diff_file, 'r', encoding="utf8") as file:
 
 error_dict = {key: [] for key in file_lines_dict}
 unique_file_lines_dict = {key: list(set(value)) for key, value in file_lines_dict.items()}
-print('------------------- error_dict ------------------- ')
-print(error_dict)
-print('------------------- unique_file_lines_dict ------------------- ')
-print(unique_file_lines_dict)
-print('------------------- file_lines_dict ------------------- ')
-print(file_lines_dict)
+line_num_pattern = r'\b\d+:\d+\b'
 
 with open(lint_logfile, 'r', encoding="utf8") as file:
     for line in file:
-        if "line " in line:
-            match = re.search(r'In (.+) line (\d+):', line)
-            if match:
-                file_path = match.group(1)
-                line_number = match.group(2)
-                file_path = file_path.strip().replace('/github/workspace/', '')
-                if file_path in error_dict:
-                    if line_number not in error_dict[file_path]:
-                        error_dict[file_path].append(line_number)
+        if re.search('error', line, re.IGNORECASE):
+            line_list = line.split(' ')
+            filename = [word for word in line_list if '/' in word]
+            if len(filename) > 0:
+                filename = str(filename).strip().replace('/github/workspace/', '').replace('[', '').replace("'",'').replace(']','')
+                filename = filename.split(':')[0]
+                for word in line_list:
+                    result = None
+                    match = re.search(line_num_pattern, word)
+                    if match:
+                        result = match.group().split(':')[0]
+                        break
+                if filename in error_dict:
+                    if result not in error_dict[filename]:
+                        error_dict[filename].append(result)
 
 output_dict = {}
 for key in error_dict.keys():
     if key in file_lines_dict:
         common_values = set(error_dict[key]) & set(file_lines_dict[key])
-        print(common_values)
         if common_values:
             output_dict[key] = common_values
             print(f"'{key} having linting error on line': {common_values}")
-print('------------------- output_dict ------------------- ')
-print(output_dict)
+
 any_non_empty = any(errors for errors in output_dict.values())
 if any_non_empty:
     sys.exit(1)
