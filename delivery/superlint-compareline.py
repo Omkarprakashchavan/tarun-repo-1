@@ -24,7 +24,11 @@ with open(diff_file, 'r', encoding="utf8") as file:
                 for ln in line_num:
                     file_lines_dict[dictname].append(ln)
 
-print(f'Printing Git-Diff output ---------------- {diff_file}')
+
+print(f'Printing Git-Diff output ----------------')
+f = open(diff_file, "r")
+print(f.read())
+print(f'closing Git-Diff output ----------------')
 error_dict = {key: [] for key in file_lines_dict}
 print(f'Before lint output {error_dict}')
 unique_file_lines_dict = {key: list(set(value)) for key, value in file_lines_dict.items()}
