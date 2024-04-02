@@ -24,7 +24,9 @@ with open(diff_file, 'r', encoding="utf8") as file:
                 for ln in line_num:
                     file_lines_dict[dictname].append(ln)
 
+print(f'Printing Git-Diff output ---------------- {diff_file}')
 error_dict = {key: [] for key in file_lines_dict}
+print(f'Before lint output {error_dict}')
 unique_file_lines_dict = {key: list(set(value)) for key, value in file_lines_dict.items()}
 line_num_pattern = r'\b\d+:'#\d+\b'
 
@@ -45,7 +47,7 @@ with open(lint_logfile, 'r', encoding="utf8") as file:
                     match = re.search(line_num_pattern, word)
                     if match:
                         result = match.group().split(':')[0]
-                        # print(filename, error_filename, match, result)
+                        print(filename, error_filename, match, result)
                         break
                 if error_filename in error_dict:
                     if result not in error_dict[error_filename]:
@@ -63,12 +65,13 @@ with open(lint_logfile, 'r', encoding="utf8") as file:
             line_data = line.split(' ')
             error_filename = line_data[3]
             error_line = line_data[5][:-1]
+            print(line, error_filename, error_line)
             if error_filename in error_dict:
                 if error_line not in error_dict[error_filename]:
                     error_dict[error_filename].append(error_line)
 
 error_dict = {key: list(set(value)) for key, value in error_dict.items()}
-print(error_dict)
+print(f'After lint output {error_dict}')
 output_dict = {}
 for key in error_dict.keys():
     if key in file_lines_dict:
