@@ -79,7 +79,7 @@ lint_data = lint_file.read()
 # print(lint_data)
 tf_pattern = r'^  on (\S+) line (\d+),.*?\n((?:\s+\d+:\s+.*?\n)*)(?=\n\s*\n|$)'
 # go_pattern = r'Error:\s+(\S+):(\d+):\d+'
-go_pattern = r'Error: ([\w\/.-]+):(\d+):'
+go_pattern = r'(?P<filename>.+\.go):(?P<line_number>\d+):'
 tf_matches = re.finditer(tf_pattern, lint_data, re.MULTILINE | re.DOTALL)
 # go_matches = re.findall(go_pattern, lint_data)
 go_matches = re.finditer(go_pattern, lint_data)
@@ -96,9 +96,10 @@ for match in tf_matches:
         error_dict[filename].extend(list(set(line_numbers)))
 
 for match in go_matches:
-    filename = match.group(1)
-    line_number = match.group(2)
-    print(f"Filename: {filename}, Line Number: {line_number}")
+    filename = match.group('filename')
+    line_number = int(match.group('line_number'))
+    updated_line_num = [int(line_number) - i for i in range(5, 0, -1)] + [int(line_number)] + [int(line_number) + i for i in range(1, 6)]
+    print(f"Filename: {filename}, Line Number: {line_number}, {updated_line_num}")
     if filename in error_dict:
         updated_line_num = [int(line_number) - i for i in range(5, 0, -1)] + [int(line_number)] + [int(line_number) + i for i in range(1, 6)]
         print(f"This is for GOLANG {filename}, {updated_line_num}")
