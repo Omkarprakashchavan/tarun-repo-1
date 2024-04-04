@@ -2,7 +2,7 @@ import re
 import sys
 
 diff_file = 'git-diff.txt'
-lint_logfile = 'super-linter.log'
+lint_logfile = 'lint-output.log'
 file_lines_dict = {}
 words = ['^diff', '^\+\s+', '^\-\s+', '^\+\d+', '^\-\d+', '^\-+', '^\++']
 dictname = ''
@@ -65,14 +65,41 @@ with open(lint_logfile, 'r', encoding="utf8") as file:
                 if file_path in error_dict:
                     if line_number not in error_dict[file_path]:
                         error_dict[file_path].append(line_number)
-        if line.startswith('  on '):
-            line_data = line.split(' ')
-            error_filename = line_data[3]
-            error_line = line_data[5][:-1]
-            print(line, error_filename, error_line)
-            if error_filename in error_dict:
-                if error_line not in error_dict[error_filename]:
-                    error_dict[error_filename].append(error_line)
+        # if line.startswith('  on '):
+        #     line_data = line.split(' ')
+        #     error_filename = line_data[3]
+        #     error_line = line_data[5][:-1]
+        #     print(line, error_filename, error_line)
+        #     if error_filename in error_dict:
+        #         if error_line not in error_dict[error_filename]:
+        #             error_dict[error_filename].append(error_line)
+
+lint_file = open(lint_logfile, 'r')
+lint_data = lint_file.read()
+# print(lint_data)
+tf_pattern = r'^  on (\S+) line (\d+),.*?\n((?:\s+\d+:\s+.*?\n)*)(?=\n\s*\n|$)'
+go_pattern = r'Error:\s+(\S+):(\d+):\d+'
+tf_matches = re.finditer(tf_pattern, lint_data, re.MULTILINE | re.DOTALL)
+go_matches = re.findall(go_pattern, lint_data)
+
+for match in tf_matches:
+    filename = match.group(1)
+    line_number = int(match.group(2))
+    lines = match.group(3).strip().split('\n')
+    line_numbers = [int(re.search(r'\d+', line).group()) for line in lines if line.strip() and re.search(r'\d+', line)]
+    updated_line_num = [int(line_number) - i for i in range(5, 0, -1)] + [int(line_number)] + [int(line_number) + i for i in range(1, 6)]
+    print(f"This is for TERRAFORM filename = {filename} line_numbers = {updated_line_num}")
+    if filename in error_dict:
+        error_dict[filename].extend(list(set(line_numbers)))
+
+for match in go_matches:
+    filename, line_number = match
+    updated_line_num = [int(line_number) - i for i in range(5, 0, -1)] + [int(line_number)] + [int(line_number) + i for i in range(1, 6)]
+    print(filename, line_number, updated_line_num)
+    if filename in error_dict:
+        updated_line_num = [int(line_number) - i for i in range(5, 0, -1)] + [int(line_number)] + [int(line_number) + i for i in range(1, 6)]
+        print(f"This is for GOLANG {filename}, {updated_line_num}")
+        error_dict[filename].extend(list(set(updated_line_num)))
 
 error_dict = {key: list(set(value)) for key, value in error_dict.items()}
 print(f'After lint output {error_dict}')
