@@ -22,13 +22,8 @@ with open(diff_file, 'r', encoding="utf8") as file:
             else:
                 line_num = re.findall(r'^[+-]\s*(\d+)', line)
                 for ln in line_num:
-                    file_lines_dict[dictname].append(ln)
+                    file_lines_dict[dictname].append(int(ln))
 
-
-print(f'Printing Git-Diff output ----------------')
-f = open(diff_file, "r")
-print(f.read())
-print(f'closing Git-Diff output ----------------')
 error_dict = {key: [] for key in file_lines_dict}
 print(f'Before lint output {error_dict}')
 unique_file_lines_dict = {key: list(set(value)) for key, value in file_lines_dict.items()}
@@ -51,11 +46,11 @@ with open(lint_logfile, 'r', encoding="utf8") as file:
                     match = re.search(line_num_pattern, word)
                     if match:
                         result = match.group().split(':')[0]
-                        print(filename, error_filename, match, result)
+                        # print(filename, error_filename, match, int(result))
                         break
                 if error_filename in error_dict:
                     if result not in error_dict[error_filename]:
-                        error_dict[error_filename].append(result)
+                        error_dict[error_filename].append(int(result))
         if "line " in line:
             match = re.search(r'In (.+) line (\d+):', line)
             if match:
@@ -64,7 +59,7 @@ with open(lint_logfile, 'r', encoding="utf8") as file:
                 file_path = file_path.strip().replace('/github/workspace/', '')
                 if file_path in error_dict:
                     if line_number not in error_dict[file_path]:
-                        error_dict[file_path].append(line_number)
+                        error_dict[file_path].append(int(line_number))
         # if line.startswith('  on '):
         #     line_data = line.split(' ')
         #     error_filename = line_data[3]
@@ -97,9 +92,10 @@ for match in tf_matches:
 
 for match in go_matches:
     filename = match.group('filename')
+    filename = filename.replace('Error: ', '')
     line_number = int(match.group('line_number'))
     updated_line_num = [int(line_number) - i for i in range(5, 0, -1)] + [int(line_number)] + [int(line_number) + i for i in range(1, 6)]
-    print(f"Filename: {filename}, Line Number: {line_number}, {updated_line_num}")
+    # print(f"Filename: {filename}, Line Number: {line_number}, {updated_line_num}")
     if filename in error_dict:
         updated_line_num = [int(line_number) - i for i in range(5, 0, -1)] + [int(line_number)] + [int(line_number) + i for i in range(1, 6)]
         print(f"This is for GOLANG {filename}, {updated_line_num}")
@@ -119,12 +115,18 @@ print(f'After lint output {error_dict}')
 output_dict = {}
 for key in error_dict.keys():
     if key in file_lines_dict:
-        common_values = set(error_dict[key]) & set(file_lines_dict[key])
-        if common_values:
+        if str(key).endswith('.go'):
+            print(f'Go file found: {key}')
+            output_dict[key] = error_dict[key]
+        else:
+            common_values = set(error_dict[key]) & set(file_lines_dict[key])
             output_dict[key] = common_values
-            print(f"'{key} having linting error on line': {common_values}")
+            # print(f"'{key} having linting error on line': {common_values}")
 
-print(output_dict)
+for key in output_dict.keys():
+    if output_dict[key]:
+        print(f"'{key} having linting error on line': {output_dict[key]}")
+
 any_non_empty = any(errors for errors in output_dict.values())
 if any_non_empty:
     sys.exit(1)
