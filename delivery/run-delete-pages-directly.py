@@ -20,7 +20,7 @@ from os import listdir
 from os.path import isfile, join
 
 github_token = os.environ['GITHUB_APP_TOKEN']
-organisation = 'githubactions-omkar'
+organisation = 'glcp'
 repositories = []
 headers = {
     'Authorization': f'Bearer {github_token}',
@@ -33,8 +33,20 @@ topdir = os.path.dirname(os.path.abspath(sys.argv[0]))
 logdir = f'{topdir}/logdir'
 
 def main(module_name='', module_description='', repositories=[], default_managed_refspec=None):
+    filename='workflow-deployment.yaml'
+    with open(filename, "r") as yaml_file:
+        data = yaml.safe_load(yaml_file)
+    modules=data['modules']
+    print(f'workflow deployment config:\n{yaml.dump(modules, default_flow_style=False)}')
+
+    for i in modules:
+        module_name=i.get('name')
+        module_description=i.get('description')
+        repositories=i.get('repositories', [])
+        print(repositories)
+
     if not 'ORG_NAME' in os.environ:
-        org_name='githubactions-omkar'
+        org_name='glcp'
     else:
         org_name=os.environ['ORG_NAME']
     global managed_ci_workflow_repo
@@ -50,7 +62,7 @@ def main(module_name='', module_description='', repositories=[], default_managed
     gh_obj = GitHubAPIs(org_name=org_name, token=app_token, logger=logger)
     org_repos : List[str] = gh_obj.get_repo_names_in_org()
 
-    logger.debug(f'Final list of Repos in the githubactions-omkar org')
+    logger.debug(f'Final list of Repos in the glcp org')
 
     for repo in repositories:
         r = repo.get('name')
@@ -204,3 +216,5 @@ def commit_and_push_changes(repo_path, commit_message, branch="gh-pages"):
 
     except Exception as e:
         logger.info(f"An error occurred: {e}")
+
+main()
