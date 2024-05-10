@@ -16,6 +16,7 @@ from utils.github_apis import GitHubAPIs
 
 github_token = os.environ['GITHUB_APP_TOKEN']
 organisation = 'glcp'
+default_tag_version = '1.8.0'
 repositories = []
 headers = {
     'Authorization': f'Bearer {github_token}',
@@ -48,9 +49,22 @@ def main():
     gh_obj = GitHubAPIs(org_name=org_name, token=app_token, logger=logger)
     org_repos: List[str] = gh_obj.get_repo_names_in_org()
 
-    for repo in repositories:
+
+    # for repo in repositories:
+    #     if repo not in org_repos:
+    #         raise Exception(f"Repository {repo} not found in {org_name} organization")
+    for repo, tag in repositories.items():
         if repo not in org_repos:
             raise Exception(f"Repository {repo} not found in {org_name} organization")
+        if tag.startswith('tags/v'):
+            repo_tag = tag.split('tags/v')[1]
+            check_tag_version = compare_tag_versions(default_tag_version, repo_tag)
+            if check_tag_version < 0:
+                logger.info(f'{repo} tag version is lower than {default_tag_version}, hence skipping this {repo}..')
+                continue
+        else:
+            logger.error(f'{repo} does not have tag, hence skipping it..')
+            continue
 
         if gh_obj.check_is_repo_archived(repo):
             logger.error(f'Repo "{repo}" is Archived ...Skipping')
@@ -61,10 +75,14 @@ def main():
         current_wd = os.getcwd()
 
         config_file = f'{current_wd}/{repo}/.github/mci-variables.yaml'
+        if not os.path.isfile(config_file):
+            logger.error(f'{config_file} not exist for repository {repo}, hence skipping it..')
+            continue
+
         # Read data from mci-variable.yaml file
         gh_pages_retention_days = get_gh_pages_retention_days(repo, file_path=config_file, key='RETENTION_DAYS')
-        if gh_pages_retention_days == 0:
-            logger.error('Retention days not set for {repo}, hence skipping...')
+        if gh_pages_retention_days == 0 or gh_pages_retention_days is None:
+            logger.error(f'Retention days not set for {repo}, hence skipping it..')
             continue
 
         # Switch to gh-pages branch
@@ -103,6 +121,7 @@ def main():
 
 def get_repository_names_from_yaml(file_path):
     repository_names = []
+    repo_dict = {}
     with open(file_path, 'r') as file:
         data = yaml.safe_load(file)
         # Check if 'modules' key exists and iterate through each module
@@ -113,7 +132,34 @@ def get_repository_names_from_yaml(file_path):
                     # Iterate through each repository and append its name to the list
                     for repository in module['repositories']:
                         repository_names.append(repository['name'])
-    return repository_names
+                        try:
+                            tag = repository.get("refspec",'')
+                        except:
+                            logger.error(f"No refspec found for {repository['name']}")
+                            tag = ''
+                        repo_dict.update({repository['name'] : tag})
+    print(repo_dict)
+    return repo_dict
+    # return repository_names
+
+def compare_tag_versions(default_tag_version, compare_tag_version):
+    default_tag_parts = list(map(int, default_tag_version.split('.')))
+    compare_tag_parts = list(map(int, compare_tag_version.split('.')))
+    
+    while len(default_tag_parts) < len(compare_tag_parts):
+        default_tag_parts.append(0)
+    while len(compare_tag_parts) < len(default_tag_parts):
+        compare_tag_parts.append(0)
+    
+    # Compare each component
+    for part1, part2 in zip(default_tag_parts, compare_tag_parts):
+        if part1 < part2:
+            return 1
+        elif part1 > part2:
+            return -1
+    
+    # If all components are equal, the versions are equal
+    return 0
 
 
 def git_clone(org_name: str, repo_name: str, token: str, refspec='gh-pages', directory=None):
@@ -155,21 +201,20 @@ def calculate_age_of_index(repo_name):
 
 def get_gh_pages_retention_days(repo, file_path='.github/mci-variables.yaml', key='RETENTION_DAYS'):
     """This function fetches the retention days for files in gh-pages branch"""
-    value = 0
+    default_value = 90
+    # Update the default value here for RETENTION_DAYS
     try:
         with open(file_path, 'r') as file:
             data = yaml.safe_load(file)
             value = data.get(key)
-    except FileNotFoundError:
-        logger.error(f'File {file_path} not found.')
-    except yaml.YAMLError as e:
-        logger.error(f"Error reading YAML file '{file_path}': {e}")
-    if value != 0:
+    except:
+        logger.error(f'NOt able to fetch from {file_path}')
+        value = None
+    if value is not None:
         logger.info(f"gh-pages retention days for '{repo}' is: {value}")
         return value
     else:
-        value = 180
-        # Update the default value here for RETENTION_DAYS
+        value = None
         return value
 
 
