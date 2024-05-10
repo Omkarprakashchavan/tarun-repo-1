@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import time
+import datetime
 import shutil
 from typing import Dict, List, Union
 from git import Repo
@@ -16,7 +17,7 @@ from utils.github_apis import GitHubAPIs
 
 github_token = os.environ['GITHUB_APP_TOKEN']
 organisation = 'glcp'
-default_tag_version = '1.8.0'
+default_tag_version = '1.1.0'
 repositories = []
 headers = {
     'Authorization': f'Bearer {github_token}',
@@ -107,8 +108,8 @@ def main():
                     file_path = os.path.join(dir_path, 'index.html')
                     modification_time = os.path.getmtime(file_path)
                     current_time = time.time()
-                    age_in_days = (current_time - modification_time) / (24 * 3600)
-
+                    age_in_days = date_difference(modification_time, current_time)
+                    print(f'Age difference in Days {age_in_days}....')
                     if age_in_days > gh_pages_retention_days:
                         logger.info(f"File 'index.html' in {dir_name} is {age_in_days} days old.")
                         dir_to_delete.append(dir_path)
@@ -141,6 +142,13 @@ def get_repository_names_from_yaml(file_path):
     print(repo_dict)
     return repo_dict
     # return repository_names
+
+def date_difference(start_time, end_time):
+    # Convert epoch times to datetime objects
+    start_datetime = datetime.datetime.fromtimestamp(start_time, datetime.timezone.utc)
+    end_datetime = datetime.datetime.fromtimestamp(end_time, datetime.timezone.utc)
+    time_difference = end_datetime - start_datetime
+    return time_difference.days
 
 def compare_tag_versions(default_tag_version, compare_tag_version):
     default_tag_parts = list(map(int, default_tag_version.split('.')))
