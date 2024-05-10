@@ -106,7 +106,10 @@ def main():
                 files = os.listdir(dir_path)
                 if 'index.html' in files:
                     file_path = os.path.join(dir_path, 'index.html')
-                    modification_time = os.path.getmtime(file_path)
+                    os.chdir(dir_path)
+                    result = subprocess.run(['git', 'log', '-1', '--format="%at', '--', 'index.html'], capture_output=True, text=True, check=True)
+                    os.chdir("..")
+                    modification_time = int(result.stdout.strip().strip('"'))
                     current_time = time.time()
                     age_in_days = date_difference(modification_time, current_time)
                     print(f'Age difference in Days {age_in_days}....')
