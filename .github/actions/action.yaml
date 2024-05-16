@@ -6,8 +6,9 @@ inputs:
     description: 'github context'
     required: true
 
-runs:
-  using: "composite"
+jobs:
+  jobs1:
+  runs-on: ubuntu-latest
   steps:
   - name: Login to image registries
     shell: bash
