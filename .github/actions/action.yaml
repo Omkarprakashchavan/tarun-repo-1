@@ -26,16 +26,16 @@ runs:
          wget -q $LATEST -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
          yq -V
       fi
-      ARTIFACTORY_KEY=$(jq -r '.HPE_ARTIFACTORY_BBOB_API_KEY' <<< '${{ inputs.secrets }}')
-      ARTIFACTORY_USER=$(jq -r '.HPE_ARTIFACTORY_BBOB_USERNAME' <<< '${{ inputs.secrets }}')
-      QUAY_KEY=$(jq -r '.CCS_QUAY_CCSPORTAL_BUILDER_PASSWORD' <<< '${{ inputs.secrets }}')
-      QUAY_USER=$(jq -r '.CCS_QUAY_CCSPORTAL_BUILDER' <<< '${{ inputs.secrets }}')
-      while read -r registry_host; do
-        if [[ $registry_host == hpeartifacts*jfrog.io ]]; then
-          echo ${ARTIFACTORY_KEY} | docker login $registry_host -u ${ARTIFACTORY_USER} --password-stdin
-        elif [[ $registry_host == quay.io ]]; then
-          echo ${QUAY_KEY} | docker login $registry_host -u ${QUAY_USER} --password-stdin
-        else
-          echo "Unrecognized image registry \"$registry_host\""
-        fi
-      done < <(yq eval '.IMAGE_REGISTRIES | .[]' .github/mci-variables.yaml)
+      # ARTIFACTORY_KEY=$(jq -r '.HPE_ARTIFACTORY_BBOB_API_KEY' <<< '${{ inputs.secrets }}')
+      # ARTIFACTORY_USER=$(jq -r '.HPE_ARTIFACTORY_BBOB_USERNAME' <<< '${{ inputs.secrets }}')
+      # QUAY_KEY=$(jq -r '.CCS_QUAY_CCSPORTAL_BUILDER_PASSWORD' <<< '${{ inputs.secrets }}')
+      # QUAY_USER=$(jq -r '.CCS_QUAY_CCSPORTAL_BUILDER' <<< '${{ inputs.secrets }}')
+      # while read -r registry_host; do
+      #   if [[ $registry_host == hpeartifacts*jfrog.io ]]; then
+      #     echo ${ARTIFACTORY_KEY} | docker login $registry_host -u ${ARTIFACTORY_USER} --password-stdin
+      #   elif [[ $registry_host == quay.io ]]; then
+      #     echo ${QUAY_KEY} | docker login $registry_host -u ${QUAY_USER} --password-stdin
+      #   else
+      #     echo "Unrecognized image registry \"$registry_host\""
+      #   fi
+      # done < <(yq eval '.IMAGE_REGISTRIES | .[]' .github/mci-variables.yaml)
