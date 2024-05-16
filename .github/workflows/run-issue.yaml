@@ -9,4 +9,4 @@ jobs:
       - uses: actions/checkout@v4
       - uses: Omkarprakashchavan/tarun-repo-1/.github/actions@main
         with: 
-          inputs: ${{ github.token }}
+          secrets: ${{ github.token }}
