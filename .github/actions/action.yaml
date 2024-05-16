@@ -1,24 +1,28 @@
-name: Install Tools Action
-description: Install jq and yq tools if not already installed
-runs:
-  using: composite
-  steps:
-    - name: Check if jq is installed
-      shell: bash
-      run: |
-        if ! command -v jq &> /dev/null; then
-          echo "jq is not installed, installing..."
-          sudo apt-get update
-          sudo apt-get -y install wget curl lsof jq gnupg libapr1 openssl g++ gcc automake make cmake libtool libapr1-dev libssl-dev
-        fi
+name: 'Login to recognized image registries'
+description: 'Login to recognized image registries in mci-variables'
 
-    - name: Check if yq is installed
-      run: |
-        if ! command -v yq &> /dev/null; then
-          echo "yq is not installed, downloading..."
-          wget https://github.com/mikefarah/yq/releases/download/v4.9.6/yq_linux_amd64 -O /tmp/yq
-          BINARY=yq_linux_amd64 
-          LATEST=$(wget -qO- https://api.github.com/repos/mikefarah/yq/releases/latest 2>/dev/null | grep browser_download_url | grep $BINARY\"\$|awk '{print $NF}' )
-          wget -q $LATEST -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
-          yq -V
-        fi
+inputs:
+  secrets:
+    description: 'github context'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - name: Login to image registries
+    shell: bash
+    run: |
+      if ! command -v jq &> /dev/null; then
+         echo "jq is not installed, installing..."
+         sudo apt-get update
+         sudo apt-get -y install wget curl lsof jq gnupg libapr1 openssl g++ gcc automake make cmake libtool libapr1-dev libssl-dev
+      fi
+
+      if ! command -v yq &> /dev/null; then
+         echo "yq is not installed, downloading..."
+         wget https://github.com/mikefarah/yq/releases/download/v4.9.6/yq_linux_amd64 -O /tmp/yq
+         BINARY=yq_linux_amd64 
+         LATEST=$(wget -qO- https://api.github.com/repos/mikefarah/yq/releases/latest 2>/dev/null | grep browser_download_url | grep $BINARY\"\$|awk '{print $NF}' )
+         wget -q $LATEST -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
+         yq -V
+      fi
