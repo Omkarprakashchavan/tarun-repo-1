@@ -1,10 +1,17 @@
 name: 'Login to recognized image registries'
 description: 'Login to recognized image registries in mci-variables'
 
-inputs:
-  secrets:
-    description: 'github context'
-    required: true
+# inputs:
+#   secrets:
+#     description: 'github context'
+#     required: true
+
+on:
+  workflow_call:
+    inputs:
+      secrets:
+        description: 'github context'
+        required: true
 
 jobs:
   jobs1:
