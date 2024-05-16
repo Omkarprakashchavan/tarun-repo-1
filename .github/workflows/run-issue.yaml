@@ -1,0 +1,12 @@
+name: invoke issue
+on: 
+  workflow_dispatch:
+
+jobs:
+  job1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./github/actions/issue.yaml@main
+        with: 
+          inputs: ${{ githib.token }}
