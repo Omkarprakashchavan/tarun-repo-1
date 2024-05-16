@@ -1,0 +1,41 @@
+name: 'Login to recognized image registries'
+description: 'Login to recognized image registries in mci-variables'
+
+inputs:
+  secrets:
+    description: 'github context'
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+  - name: Login to image registries
+    shell: bash
+    run: |
+      if ! command -v jq &> /dev/null; then
+         echo "jq is not installed, installing..."
+         sudo apt-get update
+         sudo apt-get -y install wget curl lsof jq gnupg libapr1 openssl g++ gcc automake make cmake libtool libapr1-dev libssl-dev
+      fi
+
+      if ! command -v yq &> /dev/null; then
+         echo "yq is not installed, downloading..."
+         wget https://github.com/mikefarah/yq/releases/download/v4.9.6/yq_linux_amd64 -O /tmp/yq
+         BINARY=yq_linux_amd64 
+         LATEST=$(wget -qO- https://api.github.com/repos/mikefarah/yq/releases/latest 2>/dev/null | grep browser_download_url | grep $BINARY\"\$|awk '{print $NF}' )
+         wget -q $LATEST -O /usr/bin/yq && sudo chmod +x /usr/bin/yq
+         yq -V
+      fi
+      ARTIFACTORY_KEY=$(jq -r '.HPE_ARTIFACTORY_BBOB_API_KEY' <<< '${{ inputs.secrets }}')
+      ARTIFACTORY_USER=$(jq -r '.HPE_ARTIFACTORY_BBOB_USERNAME' <<< '${{ inputs.secrets }}')
+      QUAY_KEY=$(jq -r '.CCS_QUAY_CCSPORTAL_BUILDER_PASSWORD' <<< '${{ inputs.secrets }}')
+      QUAY_USER=$(jq -r '.CCS_QUAY_CCSPORTAL_BUILDER' <<< '${{ inputs.secrets }}')
+      while read -r registry_host; do
+        if [[ $registry_host == hpeartifacts*jfrog.io ]]; then
+          echo ${ARTIFACTORY_KEY} | docker login $registry_host -u ${ARTIFACTORY_USER} --password-stdin
+        elif [[ $registry_host == quay.io ]]; then
+          echo ${QUAY_KEY} | docker login $registry_host -u ${QUAY_USER} --password-stdin
+        else
+          echo "Unrecognized image registry \"$registry_host\""
+        fi
+      done < <(yq eval '.IMAGE_REGISTRIES | .[]' .github/mci-variables.yaml)
