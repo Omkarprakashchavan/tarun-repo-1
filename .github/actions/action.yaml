@@ -4,6 +4,7 @@ runs:
   using: composite
   steps:
     - name: Check if jq is installed
+      shell: bash
       run: |
         if ! command -v jq &> /dev/null; then
           echo "jq is not installed, installing..."
