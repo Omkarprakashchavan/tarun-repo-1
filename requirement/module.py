@@ -77,7 +77,10 @@ def main(module_name='', module_description='', repositories=[], default_managed
 
         # Clone managed-ci-workflow and checkout a specific refspec within the project repo directory.
         # Retieve workflows from manifest file.
-        git_clone(org_name, managed_ci_workflow_repo, app_token, refspec=refspec, directory=r)
+        clone_status = git_clone(org_name, managed_ci_workflow_repo, app_token, refspec=refspec, directory=r)
+        if not clone_status:
+            logger.error(f'Failed to clone {r} repositoroy for tag {refspec}. Hence skipping it...')
+            continue
         versioned_ci_repo = f'{os.path.dirname(__file__)}/../{r}/{managed_ci_workflow_repo}'
 
         template_workflow_path =f'{versioned_ci_repo}/templates'
@@ -312,7 +315,10 @@ def git_clone(org_name: str, repo_name: str, token: str, refspec=None, directory
         logger.error(f'cmd failed with exit code: {ec}')
         logger.error(f'stdout: {out.decode()}')
         logger.error(f'stderr: {err.decode()}')
-        sys.exit(2)
+        return False
+        # sys.exit(2)
+    else:
+        return True
 
 def run_subprocess(cmd: str, abort_on_error=False):
     proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
