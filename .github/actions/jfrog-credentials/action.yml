@@ -22,18 +22,21 @@ runs:
       run: |
         if [[ "${{ inputs.JFROG_URL }}" == "AURBA_URL" ]]; then
           echo "JFROG_USERNAME=${{ fromJSON(inputs.secrets).ARUBA_JFROG_USERNAME }}" >> $GITHUB_OUTPUT
-          echo "Printing JFROG CRED for ARUBA ${{ fromJSON(inputs.secrets).ARUBA_JFROG_USERNAME }}"
+          echo "Printing JFROG CRED for ARUBA"
+          echo "${{ fromJSON(inputs.secrets).ARUBA_JFROG_USERNAME }}"
           echo "JFROG_PASSWORD=${{ fromJSON(inputs.secrets).ARUBA_JFROG_PASSWORD }}" >> $GITHUB_OUTPUT
           # echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_USERNAME)" >> $GITHUB_OUTPUT
           # echo "JFROG_PASSWORD=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_PASSWORD)" >> $GITHUB_OUTPUT
         elif [[ "${{ inputs.JFROG_URL }}" == "CSS_URL" ]]; then
-          echo "Printing JFROG CRED for CSS ${{ fromJSON(inputs.secrets).CSS_JFROG_USERNAME }}"
+          echo "Printing JFROG CRED for CSS "
+          echo "${{ fromJSON(inputs.secrets).CSS_JFROG_USERNAME }}"
           echo "JFROG_USERNAME=${{ fromJSON(inputs.secrets).CSS_JFROG_USERNAME }}" >> $GITHUB_OUTPUT
           echo "JFROG_PASSWORD=${{ fromJSON(inputs.secrets).CSS_JFROG_PASSWORD }}" >> $GITHUB_OUTPUT
           # echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .CSS_JFROG_USERNAME)" >> $GITHUB_OUTPUT
           # echo "JFROG_PASSWORD=$(echo '${{ inputs.secrets }}' | jq -r .CSS_JFROG_PASSWORD)" >> $GITHUB_OUTPUT
         else
-          echo "Nothing set ${{ fromJSON(inputs.secrets).ARUBA_JFROG_USERNAME }}"
+          echo "Nothing set"
+          echo "${{ fromJSON(inputs.secrets).ARUBA_JFROG_USERNAME }}"
           echo "JFROG_USERNAME=${{ fromJSON(inputs.secrets).ARUBA_JFROG_USERNAME }}" >> $GITHUB_OUTPUT
           echo "JFROG_PASSWORD=${{ fromJSON(inputs.secrets).ARUBA_JFROG_PASSWORD }}" >> $GITHUB_OUTPUT
           # echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_USERNAME)" >> $GITHUB_OUTPUT
