@@ -1,0 +1,32 @@
+name: "JFrog Credentials"
+description: "Set JFrog credentials based on the JFrog URL"
+inputs:
+  JFROG_URL:
+    description: "The JFrog URL"
+    required: true
+  secrets:
+    description: "Secrets in JSON format"
+    required: true
+
+outputs:
+  JFROG_USERNAME:
+    description: "JFrog Username"
+  JFROG_PASSWORD:
+    description: "JFrog Password"
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Set JFrog Credentials"
+      shell: bash
+      run: |
+        if [[ "${{ inputs.JFROG_URL }}" == "AURBA_URL" ]]; then
+          echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_USERNAME)" >> $GITHUB_OUTPUT
+          echo "JFROG_PASSWORD=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_PASSWORD)" >> $GITHUB_OUTPUT
+        elif [[ "${{ inputs.JFROG_URL }}" == "CSS_URL" ]]; then
+          echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .CSS_JFROG_USERNAME)" >> $GITHUB_OUTPUT
+          echo "JFROG_PASSWORD=$(echo '${{ inputs.secrets }}' | jq -r .CSS_JFROG_PASSWORD)" >> $GITHUB_OUTPUT
+        else
+          echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_USERNAME)" >> $GITHUB_OUTPUT
+          echo "JFROG_PASSWORD=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_PASSWORD)" >> $GITHUB_OUTPUT
+        fi
