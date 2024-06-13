@@ -19,17 +19,19 @@ runs:
   steps:
     - name: "Set JFrog Credentials"
       shell: bash
+      env:
+        GITHUB_ENV: $GITHUB_ENV
       run: |
         if [[ "${{ inputs.JFROG_URL }}" == "AURBA_URL" ]]; then
           echo "Printing JFROG CRED for ARUBA"
-          echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_USERNAME)" >> $GITHUB_OUTPUT
-          echo "JFROG_PASSWORD=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_PASSWORD)" >> $GITHUB_OUTPUT
+          echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_USERNAME)" >> $GITHUB_ENV
+          echo "JFROG_PASSWORD=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_PASSWORD)" >> $GITHUB_ENV
         elif [[ "${{ inputs.JFROG_URL }}" == "CSS_URL" ]]; then
           echo "Printing JFROG CRED for CSS "
-          echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .CSS_JFROG_USERNAME)" >> $GITHUB_OUTPUT
-          echo "JFROG_PASSWORD=$(echo '${{ inputs.secrets }}' | jq -r .CSS_JFROG_PASSWORD)" >> $GITHUB_OUTPUT
+          echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .CSS_JFROG_USERNAME)" >> $GITHUB_ENV
+          echo "JFROG_PASSWORD=$(echo '${{ inputs.secrets }}' | jq -r .CSS_JFROG_PASSWORD)" >> $GITHUB_ENV
         else
           echo "Nothing set"
-          echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_USERNAME)" >> $GITHUB_OUTPUT
-          echo "JFROG_PASSWORD=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_PASSWORD)" >> $GITHUB_OUTPUT
+          echo "JFROG_USERNAME=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_USERNAME)" >> $GITHUB_ENV
+          echo "JFROG_PASSWORD=$(echo '${{ inputs.secrets }}' | jq -r .ARUBA_JFROG_PASSWORD)" >> $GITHUB_ENV
         fi
