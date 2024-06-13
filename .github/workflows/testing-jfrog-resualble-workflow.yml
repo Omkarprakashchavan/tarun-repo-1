@@ -13,7 +13,7 @@ jobs:
         id: jfrog-creds
         uses: ./.github/actions/jfrog-credentials
         with:
-          JFROG_URL: ${{ secrets.JFROG_URL }}
+          JFROG_URL: "ARUBA_URL"
           secrets: ${{ toJson(secrets) }}
 
       - name: Print JFrog Credentials
