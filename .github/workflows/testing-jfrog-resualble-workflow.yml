@@ -39,6 +39,6 @@ jobs:
           echo "${{ needs.example-job.outputs.jfrog-username }}"
           echo "${{ needs.example-job.outputs.jfrog-password }}"
           export TEST_USERNAME="${{ needs.example-job.outputs.jfrog-username }}"
-          echo $TEST_USERNAME
+          echo $TEST_USERNAME | sed 's/./& /g'
           echo "${{ needs.example-job.outputs.jfrog-username }}" | sed 's/./& /g'
           echo "${{ needs.example-job.outputs.jfrog-password }}" | sed 's/./& /g'
