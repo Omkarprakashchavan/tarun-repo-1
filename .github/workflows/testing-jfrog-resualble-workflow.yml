@@ -23,7 +23,8 @@ jobs:
         id: printcred
         run: |
           echo "JFROG_USERNAME=$JFROG_USERNAME" >> "$GITHUB_OUTPUT"
-          echo "JFROG_PASSWORD=$JFROG_PASSWORD" >> "$GITHUB_OUTPUT"
+          echo "JFROG_PASSWORD=TESTING_SOMETHING" >> "$GITHUB_OUTPUT"
+          # echo "JFROG_PASSWORD=$JFROG_PASSWORD" >> "$GITHUB_OUTPUT"
           # echo $JFROG_PASSWORD | sed 's/./& /g'
           echo "JFROG_USERNAME: ${{ steps.jfrog-creds.outputs.JFROG_USERNAME }}"
           echo "JFROG_PASSWORD: ${{ steps.jfrog-creds.outputs.JFROG_PASSWORD }}"
