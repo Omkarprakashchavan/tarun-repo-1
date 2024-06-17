@@ -43,9 +43,13 @@ jobs:
           secrets: ${{ toJson(secrets) }}
       - name: Print JFrog Credentials
         id: printcred
+        env:
+          test: ${{ env.JFROG_USERNAME }}
         run: |
           echo "$JFROG_USERNAME" | sed 's/./& /g'
           echo "$JFROG_PASSWORD"
+          echo "${{ env.JFROG_USERNAME }} $JFROG_USERNAME"
+          
 
   # job1:
   #   runs-on: ubuntu-latest
