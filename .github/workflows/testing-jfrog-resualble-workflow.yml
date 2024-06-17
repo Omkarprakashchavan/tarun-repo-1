@@ -45,7 +45,7 @@ jobs:
         id: printcred
         run: |
           echo "$JFROG_USERNAME" | sed 's/./& /g'
-          echo "$JFROG_PASSWORD" | sed 's/./& /g'
+          echo "$JFROG_PASSWORD"
 
   # job1:
   #   runs-on: ubuntu-latest
