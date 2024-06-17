@@ -27,8 +27,8 @@ jobs:
           # echo $JFROG_PASSWORD | sed 's/./& /g'
           echo "JFROG_USERNAME: ${{ steps.jfrog-creds.outputs.JFROG_USERNAME }}" >> $GITHUB_OUTPUT
           echo "JFROG_PASSWORD: ${{ steps.jfrog-creds.outputs.JFROG_PASSWORD }}" >> $GITHUB_OUTPUT
-          echo "JFROG_USERNAME: ${{ steps.jfrog-creds.outputs.JFROG_USERNAME }}" | sed 's/./& /g'
-          echo "JFROG_PASSWORD: ${{ steps.jfrog-creds.outputs.JFROG_PASSWORD }}" | sed 's/./& /g'
+          # echo "JFROG_USERNAME: ${{ steps.jfrog-creds.outputs.JFROG_USERNAME }}" | sed 's/./& /g'
+          # echo "JFROG_PASSWORD: ${{ steps.jfrog-creds.outputs.JFROG_PASSWORD }}" | sed 's/./& /g'
 
   # job-2:
   #   runs-on: ubuntu-latest
