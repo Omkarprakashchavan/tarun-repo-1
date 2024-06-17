@@ -36,19 +36,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: example-job
     steps:
-      - name: print
-        env:
-          JFROG_USERNAME: ${{ needs.example-job.outputs.jfrog-username }}
-          JFROG_PASSWORD: ${{ needs.example-job.outputs.jfrog-password }}
+      - name: run reusable action
+        uses: githubactions-omkar/repo-3@gh-pages
+        with:
+          JFROG_URL: "AURBA_URL"
+          secrets: ${{ toJson(secrets) }}
+      - name: Print JFrog Credentials
+        id: printcred
         run: |
-          echo "${{ needs.example-job.outputs.jfrog-username }}"
-          echo "${{ needs.example-job.outputs.jfrog-password }}"
-          export TEST_USERNAME="${{ needs.example-job.outputs.jfrog-username }}"
-          echo $TEST_USERNAME | sed 's/./& /g'
-          echo "$JFROG_USERNAME $JFROG_PASSWORD"
-          echo "$JFROG_USERNAME $JFROG_PASSWORD" | sed 's/./& /g'
-          echo "${{ needs.example-job.outputs.jfrog-username }}" | sed 's/./& /g'
-          echo "${{ needs.example-job.outputs.jfrog-password }}" | sed 's/./& /g'
+          echo "$JFROG_USERNAME" | sed 's/./& /g'
+          echo "$JFROG_PASSWORD" | sed 's/./& /g'
 
   # job1:
   #   runs-on: ubuntu-latest
