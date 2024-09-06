@@ -91,10 +91,8 @@ def main(module_name='', module_description='', repositories=[], default_managed
         template_workflow_path =f'{versioned_ci_repo}/templates'
         primary_workflow_path =f'{versioned_ci_repo}/workflows'
         workflow_manifest_file =f'{versioned_ci_repo}/workflow-manifest.yaml'
-        
-        
 
-        primary_workflows, optional_workflows, template_workflows, custom_branch_workflows, cron_workflows, build_system_workflows = workflow_manifest(workflow_manifest_file)
+        primary_workflows, optional_workflows, template_workflows, custom_branch_workflows, cron_workflows, build_system_workflows = workflow_manifest(workflow_manifest_file, build_system)
 
         workflow_sources=[]
         workflow_exists=[]
@@ -155,13 +153,13 @@ def main(module_name='', module_description='', repositories=[], default_managed
         for bswf in build_system_workflows:
             source = f'{primary_workflow_path}/{build_system}'
             dest = get_dest_workflow_path(r, bswf)
-            logger.debug(f'comparing Build System workflow {source} vs. {dest}')
+            logger.debug(f'comparing {build_system} Build System workflow {source} vs. {dest}')
             if not gh_obj.check_workflow_file(r, bswf):
                 # File does not exist, exists at 0 bytes, or other exception
                 logger.debug(f'workflow {bswf} does not exist in {r}')
                 workflow_sources.append(f'{primary_workflow_path}/{build_system}/{bswf}')
             else:
-                logger.info(f'Build System workflow file {bswf} exists for repo {r}')
+                logger.info(f'{build_system} Build System workflow file {bswf} exists for repo {r}')
                 if bswf in custom_branch_workflows:
                     custom_branch_update(bswf, r)
                 source_md5sum = calc_template_md5sum(f'{primary_workflow_path}/{build_system}/{bswf}')
@@ -175,7 +173,7 @@ def main(module_name='', module_description='', repositories=[], default_managed
                     workflow_exists.append(f'{primary_workflow_path}/{build_system}/{bswf}')
                     logger.debug(f'md5sum of master repo and user repo {r} workflow {bswf} is the same.  skipping deployment.')
         # print(workflow_sources            
-        wf_cleanup(primary_workflows=primary_workflows, template_workflows=template_workflows, optional_workflows=optional_workflows, build_system_workflows=build_system_workflows repo_name=r)
+        wf_cleanup(primary_workflows=primary_workflows, template_workflows=template_workflows, optional_workflows=optional_workflows, build_system_workflows=build_system_workflows, repo_name=r)
         git_push_workflows(r, workflow_sources, app_token)
 
         # Add to the dict of new deployments for the report
@@ -234,10 +232,10 @@ def repository_statuscheck_secrets(repositories):
         except Exception as e:
             logger.debug(f'Error while updating specific secrets {spl_secrets} on {repo_name}: {str(e)}')
 
-def workflow_manifest(manifest_file):
+def workflow_manifest(manifest_file, build_system):
     with open(manifest_file, "r") as f:
         data = yaml.safe_load(f)
-    return data.get('primary_workflows', []), data.get('optional_workflows', []), data.get('template_workflows', []), data.get('custom_branch_workflows', []), data.get('cron_workflows', []), data.get('build_system', '')
+    return data.get('primary_workflows', []), data.get('optional_workflows', []), data.get('template_workflows', []), data.get('custom_branch_workflows', []), data.get('cron_workflows', []), data.get(build_system, [])
 
 
 def custom_branch_update(custom_branch_workflow: str, repo_name: str):
