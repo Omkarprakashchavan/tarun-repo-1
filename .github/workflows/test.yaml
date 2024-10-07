@@ -1,0 +1,13 @@
+name: Managed CI Workflow Deployer - Repo1
+on:
+  workflow_dispatch:
+  workflow_call:
+  push:
+    branches:
+      - main
+    paths:
+      - 'workflow-deployment.yaml'
+jobs:
+  deploy:
+    uses: Omkarprakashchavan/tarun-repo-2/.github/workflows/managed-ci-workflow-2.yaml@main
+    secrets: inherit
