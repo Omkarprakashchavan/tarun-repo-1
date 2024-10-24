@@ -1,24 +1,26 @@
-name: Managed CI On Manual Dev Build
+name: Managed CI On Merge
 on:
-  workflow_dispatch:
-
+  release:
+    types: [released]
+  push:
+    branches:
+      - main
+      - master
+      - mainline
+    paths-ignore:
+      - '.github/**'
 jobs:
   mci-pre-lint:
     uses: ./.github/workflows/mci-pre-lint.yaml
     secrets: inherit
   mci-lint:
-    #if: vars.END_TO_END_WF == 'true'
-    # NOTE: if there's a future requirement to NOT run linting for the "workflow_dispatch" event,
-    # then use the above condition to ensure that linting is run when an end-to-end workflow
-    # execution is required for "workflow_dispatch" events.
-    # This currently applies to mirrored/external repos.
     uses: glcp/managed-ci-workflow/.github/workflows/mci-lint.yaml@main
     secrets: inherit
     needs: mci-pre-lint
   mci-pre-test:
     uses: ./.github/workflows/mci-pre-test.yaml
     secrets: inherit
-  mci-unit-test: 
+  mci-unit-test:
     uses: glcp/managed-ci-workflow/.github/workflows/mci-unit-test.yaml@main
     secrets: inherit
     needs: mci-pre-test

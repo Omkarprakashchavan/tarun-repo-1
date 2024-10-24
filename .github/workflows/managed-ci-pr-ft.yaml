@@ -1,0 +1,22 @@
+name: Managed CI FT - Run
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  ft-pr:
+    uses: glcp/managed-ci-workflow/.github/workflows/mci-ft-run.yaml@main
+    secrets: inherit
+  mci-status-checks:
+    if: always()
+    uses: glcp/managed-ci-workflow/.github/workflows/mci-ft-status.yaml@main
+    with:
+      ft-pr-status: ${{ needs.ft-pr.outputs.ft-pr-status }}
+      ft-pr-emoji: ${{ needs.ft-pr.outputs.ft-pr-emoji }}
+    secrets: inherit
+    needs: [ft-pr]
+  mci-metrics:
+    if: always()
+    uses: glcp/managed-ci-workflow/.github/workflows/mci-metrics.yaml@main
+    secrets: inherit
+    needs: mci-status-checks

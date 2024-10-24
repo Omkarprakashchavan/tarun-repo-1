@@ -1,0 +1,34 @@
+#
+# Managed CI Workflow - PRE CHECK
+# DO NOT remove this file.  Doing so will break the entire managed CI workflow.
+# NOTE that customizing this file is optional and it will work as-is.
+
+name: Managed CI Quality Pre-Check
+on:
+  workflow_call:
+
+jobs:
+  pre-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3.3.0
+
+      # first restore, the variables artifact does not exist, so we load from the checked out repo
+      - uses: glcp/mci-actions-variables-restore@v2
+        with:
+          use-artifact: false
+
+#
+# Add project-specific pre-check steps here
+#
+
+      - uses: glcp/mci-actions-variables-backup@v2
+        with:
+          artifact-name: variables-check
+
+      - uses: glcp/mci-actions-workspace-backup@v1
+        if: env.CHECK_WORKSPACE_BACKUP == 'true'
+        with:
+          artifact-name: workspace-check
+          zip-name: workspace-check.zip

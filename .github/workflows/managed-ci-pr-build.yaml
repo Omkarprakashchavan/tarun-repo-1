@@ -1,0 +1,16 @@
+name: Managed CI Build for PR
+
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+
+jobs:
+  pr-build-and-ft:
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    uses: glcp/managed-ci-workflow/.github/workflows/mci-pr-build.yaml@main
+    secrets: inherit
+  mci-metrics:
+    if: always()
+    uses: glcp/managed-ci-workflow/.github/workflows/mci-metrics.yaml@main
+    secrets: inherit
+    needs: pr-build-and-ft

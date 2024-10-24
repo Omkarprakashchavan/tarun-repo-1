@@ -1,0 +1,66 @@
+#
+# Managed CI Workflow - POST CHECK
+# DO NOT remove this file.  Doing so will break the entire managed CI workflow.
+# NOTE that customizing this file is optional and it will work as-is.
+
+name: Managed CI Custom Quality Post-Check
+
+on:
+  workflow_call:
+    outputs:
+      custom-post-check:
+        description: "Singular consolidated status of any custom post-checks"
+        value: ${{ jobs.status-output.outputs.post-check }}
+
+jobs:
+  post-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: glcp/mci-actions-variables-restore@v2
+        with:
+          artifact-name: variables-check
+
+      - if: env.CHECK_WORKSPACE_BACKUP == 'true'
+        name: Restore Workspace
+        id: workspace-restore
+        uses: glcp/mci-actions-workspace-restore@v1
+        with:
+          artifact-name: workspace-check
+          zip-name: workspace-check.zip
+
+      - if: steps.workspace-restore.outcome == 'skipped'
+        name: Checkout Code
+        uses: actions/checkout@v3.3.0
+        with:
+          fetch-depth: 0
+
+      # first restore, the variables artifact does not exist, so we load from the checked out repo
+      - uses: glcp/mci-actions-variables-restore@v2
+        with:
+          use-artifact: false
+
+#
+# Add project-specific post-check steps here
+#
+
+      - uses: glcp/mci-actions-variables-backup@v2
+        with:
+          artifact-name: variables-check
+
+      - uses: glcp/mci-actions-workspace-backup@v1
+        if: env.CHECK_WORKSPACE_BACKUP == 'true'
+        with:
+          artifact-name: workspace-check
+          zip-name: workspace-check.zip
+
+  status-output:
+    needs: [post-check]
+    runs-on: ubuntu-latest
+    if: always()
+    outputs:
+      post-check: ${{ steps.setoutput.outputs.post-check }}
+    steps:
+      # this can be modified to provide a consolidated status check result from multiple jobs
+      - id: setoutput
+        run: |
+          echo "post-check=${{ needs.post-check.result }}" >> $GITHUB_OUTPUT

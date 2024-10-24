@@ -1,0 +1,37 @@
+name: Managed CI PR Quality Checks
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
+
+jobs:
+  mci-pre-check:
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    uses: ./.github/workflows/mci-pre-check.yaml
+    secrets: inherit
+  mci-check:
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    uses: glcp/managed-ci-workflow/.github/workflows/mci-check.yaml@main
+    secrets: inherit
+    needs: mci-pre-check
+  mci-post-check:
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
+    uses: ./.github/workflows/mci-post-check.yaml
+    secrets: inherit
+    needs: mci-check
+  mci-status-checks:
+    if: always()
+    uses: glcp/managed-ci-workflow/.github/workflows/mci-pr-status-qualitycheck.yaml@main
+    with:
+      copyright-check: ${{ needs.mci-check.outputs.copyright-check }}
+      secret-scanner: ${{ needs.mci-check.outputs.secret-scanner }}
+      malware-scanner: ${{ needs.mci-check.outputs.malware-scanner }}
+      pr-validation: ${{ needs.mci-check.outputs.pr-validation }}
+      post-check: ${{ needs.mci-post-check.outputs.custom-post-check }}
+    secrets: inherit
+    needs: [mci-pre-check, mci-check, mci-post-check]
+  mci-metrics:
+    if: always()
+    uses: glcp/managed-ci-workflow/.github/workflows/mci-metrics.yaml@main
+    secrets: inherit
+    needs: mci-status-checks

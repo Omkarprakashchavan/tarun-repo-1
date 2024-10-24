@@ -1,41 +1,50 @@
-name: Managed CI On Manual Dev Build
+name: Managed CI PR
 on:
-  workflow_dispatch:
+  pull_request:
+    types: [opened, reopened, synchronize, edited]
 
 jobs:
   mci-pre-lint:
     uses: ./.github/workflows/mci-pre-lint.yaml
     secrets: inherit
   mci-lint:
-    #if: vars.END_TO_END_WF == 'true'
-    # NOTE: if there's a future requirement to NOT run linting for the "workflow_dispatch" event,
-    # then use the above condition to ensure that linting is run when an end-to-end workflow
-    # execution is required for "workflow_dispatch" events.
-    # This currently applies to mirrored/external repos.
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     uses: glcp/managed-ci-workflow/.github/workflows/mci-lint.yaml@main
     secrets: inherit
     needs: mci-pre-lint
   mci-pre-test:
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     uses: ./.github/workflows/mci-pre-test.yaml
     secrets: inherit
-  mci-unit-test: 
+  mci-unit-test:
     uses: glcp/managed-ci-workflow/.github/workflows/mci-unit-test.yaml@main
     secrets: inherit
     needs: mci-pre-test
   build:
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     uses: glcp/managed-ci-workflow/.github/workflows/mci-build.yaml@main
     secrets: inherit
     needs: [mci-lint, mci-unit-test]
   post-build:
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     uses: glcp/managed-ci-workflow/.github/workflows/mci-post-build.yaml@main
     secrets: inherit
     needs: build
   mci-custom-final:
+    if: github.event.pull_request.user.login != 'dependabot[bot]'
     uses: ./.github/workflows/mci-custom-final.yaml
     secrets: inherit
     needs: post-build
+  mci-status-checks:
+    if: always()
+    uses: glcp/managed-ci-workflow/.github/workflows/mci-pr-status.yaml@main
+    with:
+      lint: ${{ needs.mci-lint.outputs.lint }}
+      unit-test: ${{ needs.mci-unit-test.outputs.unit-test }}
+    secrets: inherit
+    needs: [mci-lint, mci-unit-test]
   mci-metrics:
     if: always()
     uses: glcp/managed-ci-workflow/.github/workflows/mci-metrics.yaml@main
     secrets: inherit
-    needs: mci-custom-final
+    needs: mci-status-checks

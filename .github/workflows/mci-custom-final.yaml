@@ -1,0 +1,27 @@
+#
+# Managed CI Workflow - Custom Final
+# DO NOT remove this file.  Doing so will break the entire managed CI workflow.
+# NOTE that customizing this file is optional, and it will work as-is.
+
+name: CI Custom Final
+on:
+  workflow_call:
+
+jobs:
+  custom-final:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: glcp/mci-actions-variables-restore@v2
+        continue-on-error: true
+        with:
+          artifact-name: variables-build
+
+#-------------------------
+# Add project-specific steps here to be run after "mci-post-build.yaml" workflow is completed
+#-------------------------
+
+      - uses: glcp/mci-actions-variables-backup@v2
+        if: always()
+        with:
+          artifact-name: variables-custom-final
+

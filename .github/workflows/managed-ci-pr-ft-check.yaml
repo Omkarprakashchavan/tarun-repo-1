@@ -1,0 +1,15 @@
+name: Managed CI FT - Check PR approvals
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  mci-ft-check-pr-approvals:
+    uses: glcp/managed-ci-workflow/.github/workflows/mci-ft-check.yaml@main
+    secrets: inherit
+  mci-metrics:
+    if: always()
+    uses: glcp/managed-ci-workflow/.github/workflows/mci-metrics.yaml@main
+    secrets: inherit
+    needs: mci-ft-check-pr-approvals
